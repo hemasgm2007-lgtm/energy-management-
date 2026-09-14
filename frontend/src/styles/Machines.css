@@ -1,0 +1,369 @@
+/* =========================================================
+   MACHINES PAGE
+========================================================= */
+
+.machines-page {
+  min-height: 100vh;
+  padding: 30px 34px;
+
+  background: #f4f7fb;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.machines-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 28px;
+}
+
+.machines-header h1 {
+  margin: 0;
+
+  font-size: 28px;
+  font-weight: 700;
+
+  color: #101c33;
+}
+
+.machines-header p {
+  margin: 7px 0 0;
+
+  font-size: 13px;
+
+  color: #71809a;
+}
+
+
+/* =========================================================
+   REFRESH BUTTON
+========================================================= */
+
+.refresh-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 16px;
+
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #263650;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.refresh-button:hover {
+  background: #f1f5fb;
+}
+
+
+/* =========================================================
+   STAT CARDS
+========================================================= */
+
+.machine-stats {
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 16px;
+
+  margin-bottom: 24px;
+}
+
+.machine-stat-card {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e4eaf2;
+
+  border-radius: 12px;
+
+  box-shadow: 0 3px 12px rgba(30, 50, 80, 0.04);
+}
+
+.machine-stat-icon {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #eaf2ff;
+
+  color: #2878e8;
+}
+
+.active-icon {
+  background: #e9f9f0;
+
+  color: #18a058;
+}
+
+.machine-stat-card span {
+  display: block;
+
+  font-size: 11px;
+
+  color: #7c8ba3;
+}
+
+.machine-stat-card strong {
+  display: block;
+
+  margin-top: 5px;
+
+  font-size: 22px;
+
+  color: #16243d;
+}
+
+
+/* =========================================================
+   MAIN PANEL
+========================================================= */
+
+.machines-panel {
+  background: #ffffff;
+
+  border: 1px solid #e4eaf2;
+
+  border-radius: 12px;
+
+  overflow: hidden;
+
+  box-shadow: 0 3px 14px rgba(30, 50, 80, 0.04);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 22px 24px;
+
+  border-bottom: 1px solid #edf1f6;
+}
+
+.panel-header h2 {
+  margin: 0;
+
+  font-size: 17px;
+
+  color: #17253e;
+}
+
+.panel-header p {
+  margin: 5px 0 0;
+
+  font-size: 11px;
+
+  color: #8290a7;
+}
+
+.live-badge {
+  padding: 7px 11px;
+
+  border-radius: 20px;
+
+  background: #eaf9f0;
+
+  color: #159451;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.machine-table-wrapper {
+  overflow-x: auto;
+}
+
+.machine-table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.machine-table th {
+  padding: 14px 22px;
+
+  background: #f8fafc;
+
+  border-bottom: 1px solid #e8edf4;
+
+  text-align: left;
+
+  font-size: 10px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.6px;
+
+  color: #7b899f;
+}
+
+.machine-table td {
+  padding: 17px 22px;
+
+  border-bottom: 1px solid #edf1f6;
+
+  font-size: 12px;
+
+  color: #506078;
+}
+
+.machine-table tbody tr:hover {
+  background: #fafcff;
+}
+
+
+/* =========================================================
+   MACHINE NAME
+========================================================= */
+
+.machine-name {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.machine-icon {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #eef4ff;
+
+  color: #347fe8;
+}
+
+.machine-name strong {
+  display: block;
+
+  color: #263650;
+
+  font-size: 12px;
+}
+
+.machine-name span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #8a97aa;
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 9px;
+
+  border-radius: 20px;
+
+  font-size: 10px;
+
+  font-weight: 600;
+}
+
+.status-active {
+  background: #eaf9f0;
+
+  color: #159451;
+}
+
+.status-inactive {
+  background: #f1f3f6;
+
+  color: #7b8798;
+}
+
+
+/* =========================================================
+   MESSAGES
+========================================================= */
+
+.machines-message {
+  padding: 50px;
+
+  text-align: center;
+
+  font-size: 13px;
+
+  color: #7c8ba3;
+}
+
+.machines-message.error {
+  color: #dc4c4c;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+  .machine-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 650px) {
+  .machines-page {
+    padding: 20px;
+  }
+
+  .machines-header {
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .machines-header h1 {
+    font-size: 23px;
+  }
+
+  .machine-stats {
+    grid-template-columns: 1fr;
+  }
+}

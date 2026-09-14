@@ -1,0 +1,516 @@
+.energy-sources-page {
+  min-height: 100vh;
+  padding: 28px;
+  background: #f4f7fb;
+}
+
+
+/* HEADER */
+
+.energy-sources-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 24px;
+}
+
+.energy-sources-title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.energy-sources-title-icon {
+  width: 46px;
+  height: 46px;
+
+  border-radius: 12px;
+
+  background: #eaf3ff;
+  color: #1677ff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.energy-sources-header h1 {
+  margin: 0;
+
+  font-size: 27px;
+
+  color: #102544;
+}
+
+.energy-sources-header p {
+  margin: 5px 0 0;
+
+  font-size: 13px;
+
+  color: #7d91ad;
+}
+
+
+/* REFRESH */
+
+.energy-refresh {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 15px;
+
+  border: 1px solid #dbe5ef;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #315071;
+
+  cursor: pointer;
+
+  font-size: 13px;
+}
+
+
+/* TOTAL */
+
+.generation-card {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e9f1;
+
+  border-radius: 14px;
+
+  padding: 22px;
+
+  margin-bottom: 20px;
+
+  box-shadow: 0 4px 15px rgba(25, 55, 90, 0.04);
+}
+
+.generation-icon {
+  width: 52px;
+  height: 52px;
+
+  border-radius: 12px;
+
+  background: #eaf3ff;
+  color: #1677ff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.generation-card span {
+  color: #8194ad;
+
+  font-size: 12px;
+}
+
+.generation-card strong {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #102544;
+
+  font-size: 28px;
+}
+
+.generation-card small {
+  font-size: 12px;
+
+  color: #7d91aa;
+}
+
+.generation-card p {
+  margin: 4px 0 0;
+
+  color: #8799af;
+
+  font-size: 11px;
+}
+
+
+/* SOURCE GRID */
+
+.source-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 18px;
+
+  margin-bottom: 20px;
+}
+
+.source-card {
+  background: #ffffff;
+
+  border: 1px solid #e2e9f1;
+
+  border-radius: 14px;
+
+  padding: 20px;
+
+  box-shadow: 0 4px 15px rgba(25, 55, 90, 0.04);
+}
+
+.source-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.source-icon {
+  width: 45px;
+  height: 45px;
+
+  border-radius: 11px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.source-icon.solar {
+  background: #fff4d9;
+  color: #e6a900;
+}
+
+.source-icon.wind {
+  background: #e8f6ff;
+  color: #2b9ddd;
+}
+
+.source-icon.chp {
+  background: #f0eaff;
+  color: #7654e8;
+}
+
+.source-icon.diesel {
+  background: #edf0f4;
+  color: #61728a;
+}
+
+.source-status {
+  font-size: 11px;
+
+  color: #17a967;
+}
+
+.source-card h2 {
+  margin: 17px 0 8px;
+
+  color: #193252;
+
+  font-size: 16px;
+}
+
+.source-power {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.source-power strong {
+  color: #102544;
+
+  font-size: 28px;
+}
+
+.source-power span {
+  color: #7d91aa;
+
+  font-size: 12px;
+}
+
+
+/* PROGRESS */
+
+.source-progress {
+  margin-top: 20px;
+}
+
+.source-progress-top {
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: 7px;
+
+  font-size: 10px;
+
+  color: #899bb0;
+}
+
+.source-progress-top strong {
+  color: #536b88;
+}
+
+.progress-track {
+  width: 100%;
+  height: 6px;
+
+  border-radius: 10px;
+
+  background: #e9eef4;
+
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+
+  border-radius: 10px;
+}
+
+.progress-fill.solar {
+  background: #e6a900;
+}
+
+.progress-fill.wind {
+  background: #2b9ddd;
+}
+
+.progress-fill.chp {
+  background: #7654e8;
+}
+
+.progress-fill.diesel {
+  background: #61728a;
+}
+
+
+/* DETAILS */
+
+.source-details {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 12px;
+
+  margin-top: 20px;
+
+  padding-top: 15px;
+
+  border-top: 1px solid #edf1f5;
+}
+
+.source-details span {
+  display: block;
+
+  color: #91a0b4;
+
+  font-size: 10px;
+}
+
+.source-details strong {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #304a68;
+
+  font-size: 12px;
+}
+
+
+/* STRATEGY */
+
+.source-strategy {
+  background: #ffffff;
+
+  border: 1px solid #e2e9f1;
+
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  box-shadow: 0 4px 15px rgba(25, 55, 90, 0.04);
+}
+
+.strategy-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 20px 22px;
+
+  border-bottom: 1px solid #edf1f5;
+}
+
+.strategy-header h2 {
+  margin: 0;
+
+  color: #102544;
+
+  font-size: 17px;
+}
+
+.strategy-header p {
+  margin: 5px 0 0;
+
+  color: #8799af;
+
+  font-size: 12px;
+}
+
+.strategy-header > span {
+  padding: 7px 11px;
+
+  border-radius: 20px;
+
+  background: #e9f9f1;
+
+  color: #17a967;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+.strategy-list {
+  padding: 7px 22px 15px;
+}
+
+.strategy-row {
+  display: grid;
+
+  grid-template-columns:
+    35px 45px 1fr auto;
+
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 13px 0;
+
+  border-bottom: 1px solid #edf1f5;
+}
+
+.strategy-row:last-child {
+  border-bottom: none;
+}
+
+.priority-number {
+  width: 28px;
+  height: 28px;
+
+  border-radius: 50%;
+
+  background: #eaf3ff;
+
+  color: #1677ff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+.strategy-icon {
+  width: 35px;
+  height: 35px;
+
+  border-radius: 9px;
+
+  background: #f2f6fa;
+
+  color: #55708f;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.strategy-name strong {
+  display: block;
+
+  color: #29435f;
+
+  font-size: 13px;
+}
+
+.strategy-name span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #8b9caf;
+
+  font-size: 10px;
+}
+
+.strategy-power {
+  color: #102544;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+
+/* MESSAGES */
+
+.energy-message {
+  background: #ffffff;
+
+  border: 1px solid #e2e9f1;
+
+  border-radius: 14px;
+
+  padding: 50px;
+
+  text-align: center;
+
+  color: #71849d;
+
+  font-size: 14px;
+}
+
+.energy-message.error {
+  color: #d9534f;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 1050px) {
+
+  .source-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+}
+
+@media (max-width: 650px) {
+
+  .energy-sources-page {
+    padding: 18px;
+  }
+
+  .source-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .energy-sources-header {
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+}

@@ -1,0 +1,733 @@
+/* =========================================================
+   RECOMMENDATIONS PAGE
+   Matches Smart Energy Monitoring light dashboard theme
+   ========================================================= */
+
+.recommendations-page {
+  min-height: 100vh;
+  padding: 42px 48px 50px;
+  background: #f4f7fb;
+  color: #0b2344;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.recommendations-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.recommendations-header > div:first-child {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.recommendations-header > div:first-child::before {
+  content: "✦";
+
+  width: 56px;
+  height: 56px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 14px;
+
+  background: #eef5ff;
+  color: #1976ff;
+
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.recommendations-header h1 {
+  margin: 0 0 7px;
+
+  color: #092448;
+
+  font-size: 30px;
+  line-height: 1.1;
+
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.recommendations-header p {
+  margin: 0;
+
+  color: #7890ad;
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   REFRESH BUTTON
+   ========================================================= */
+
+.recommendations-refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-width: 118px;
+  height: 46px;
+
+  padding: 0 16px;
+
+  border: 1px solid #d8e3f0;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  color: #315579;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+
+  box-shadow: 0 2px 5px rgba(21, 55, 90, 0.03);
+}
+
+.recommendations-refresh:hover {
+  border-color: #1976ff;
+  color: #1976ff;
+
+  box-shadow: 0 5px 15px rgba(25, 118, 255, 0.08);
+}
+
+.recommendations-refresh:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+   ========================================================= */
+
+.recommendation-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 22px;
+
+  margin-bottom: 28px;
+}
+
+.recommendation-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+
+  min-height: 108px;
+
+  padding: 20px 22px;
+
+  background: #ffffff;
+
+  border: 1px solid #dce6f1;
+  border-radius: 15px;
+
+  box-shadow:
+    0 4px 14px rgba(33, 69, 110, 0.05);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.recommendation-stat-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 22px rgba(33, 69, 110, 0.08);
+}
+
+
+/* =========================================================
+   KPI ICONS
+   ========================================================= */
+
+.recommendation-stat-icon {
+  width: 50px;
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 13px;
+
+  background: #eef5ff;
+  color: #1976ff;
+}
+
+
+/* Energy saving */
+
+.recommendation-stat-card:nth-child(2)
+.recommendation-stat-icon {
+  background: #fff5e8;
+  color: #f59e0b;
+}
+
+
+/* Cost saving */
+
+.recommendation-stat-card:nth-child(3)
+.recommendation-stat-icon {
+  background: #eaf9f1;
+  color: #10b981;
+}
+
+
+/* Efficiency */
+
+.recommendation-stat-card:nth-child(4)
+.recommendation-stat-icon {
+  background: #eaf9f1;
+  color: #00a86b;
+}
+
+
+/* =========================================================
+   KPI TEXT
+   ========================================================= */
+
+.recommendation-stat-card span {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #7b91ad;
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.recommendation-stat-card strong {
+  display: block;
+
+  color: #092448;
+
+  font-size: 24px;
+  line-height: 1.1;
+
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   MAIN RECOMMENDATIONS PANEL
+   ========================================================= */
+
+.recommendations-panel {
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #dce6f1;
+  border-radius: 16px;
+
+  box-shadow:
+    0 4px 15px rgba(33, 69, 110, 0.05);
+}
+
+
+/* =========================================================
+   PANEL HEADER
+   ========================================================= */
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 25px 28px;
+
+  border-bottom: 1px solid #e5ecf4;
+}
+
+.panel-header h2 {
+  margin: 0 0 6px;
+
+  color: #092448;
+
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.panel-header p {
+  margin: 0;
+
+  color: #8095ae;
+
+  font-size: 12.5px;
+}
+
+
+/* =========================================================
+   AI BADGE
+   ========================================================= */
+
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 8px 13px;
+
+  border-radius: 20px;
+
+  background: #eef5ff;
+
+  border: 1px solid #d6e6ff;
+
+  color: #1976ff;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ai-badge svg {
+  color: #1976ff;
+}
+
+
+/* =========================================================
+   RECOMMENDATION LIST
+   ========================================================= */
+
+.recommendation-list {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* =========================================================
+   RECOMMENDATION CARD
+   ========================================================= */
+
+.recommendation-card {
+  position: relative;
+
+  display: flex;
+  gap: 17px;
+
+  padding: 23px 28px;
+
+  border-bottom: 1px solid #e8eef5;
+
+  transition:
+    background 0.2s ease,
+    padding-left 0.2s ease;
+}
+
+.recommendation-card:last-child {
+  border-bottom: none;
+}
+
+.recommendation-card:hover {
+  background: #f8fbff;
+  padding-left: 32px;
+}
+
+
+/* =========================================================
+   RECOMMENDATION ICON
+   ========================================================= */
+
+.recommendation-icon {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #eef5ff;
+
+  color: #1976ff;
+
+  border: 1px solid #dceaff;
+}
+
+
+/* Different icons by priority */
+
+.recommendation-card:nth-child(1)
+.recommendation-icon,
+.recommendation-card:nth-child(2)
+.recommendation-icon {
+  background: #fff0f0;
+  color: #ef4444;
+  border-color: #ffe0e0;
+}
+
+.recommendation-card:nth-child(3)
+.recommendation-icon,
+.recommendation-card:nth-child(4)
+.recommendation-icon {
+  background: #fff7e9;
+  color: #f59e0b;
+  border-color: #ffebc7;
+}
+
+.recommendation-card:nth-child(5)
+.recommendation-icon {
+  background: #ecf9f2;
+  color: #10b981;
+  border-color: #d7f1e3;
+}
+
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
+.recommendation-content {
+  flex: 1;
+  min-width: 0;
+}
+
+
+/* =========================================================
+   TITLE
+   ========================================================= */
+
+.recommendation-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  margin-bottom: 8px;
+}
+
+.recommendation-title-row h3 {
+  margin: 0;
+
+  color: #092448;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  line-height: 1.4;
+}
+
+
+/* =========================================================
+   PRIORITY BADGES
+   ========================================================= */
+
+.priority-badge {
+  flex-shrink: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 55px;
+
+  padding: 5px 10px;
+
+  border-radius: 20px;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.3px;
+}
+
+
+/* HIGH */
+
+.priority-high {
+  background: #fff0f0;
+
+  border: 1px solid #ffd8d8;
+
+  color: #ef4444;
+}
+
+
+/* MEDIUM */
+
+.priority-medium {
+  background: #fff6e8;
+
+  border: 1px solid #ffe6bf;
+
+  color: #e89400;
+}
+
+
+/* LOW */
+
+.priority-low {
+  background: #eaf9f1;
+
+  border: 1px solid #d2f0df;
+
+  color: #0e9f61;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
+.recommendation-description {
+  max-width: 900px;
+
+  margin: 0 0 14px;
+
+  color: #7187a2;
+
+  font-size: 12.5px;
+
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   DETAILS
+   ========================================================= */
+
+.recommendation-details {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 18px;
+}
+
+.recommendation-details span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #7890aa;
+
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.recommendation-details span svg {
+  color: #8aa0ba;
+}
+
+
+/* Machine */
+
+.recommendation-details span:first-child svg {
+  color: #1976ff;
+}
+
+
+/* Saving */
+
+.recommendation-details span:nth-child(2) {
+  color: #0e9f61;
+  font-weight: 650;
+}
+
+.recommendation-details span:nth-child(2) svg {
+  color: #10b981;
+}
+
+
+/* Recommended */
+
+.recommendation-details span:nth-child(3) svg {
+  color: #8aa0ba;
+}
+
+
+/* =========================================================
+   NO RECOMMENDATIONS
+   ========================================================= */
+
+.no-recommendations {
+  padding: 65px 20px;
+
+  text-align: center;
+}
+
+.no-recommendations svg {
+  margin-bottom: 12px;
+
+  color: #10b981;
+}
+
+.no-recommendations h3 {
+  margin: 0 0 8px;
+
+  color: #092448;
+
+  font-size: 16px;
+}
+
+.no-recommendations p {
+  margin: 0;
+
+  color: #7d92aa;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   LOADING MESSAGE
+   ========================================================= */
+
+.recommendations-message {
+  min-height: 220px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  background: #ffffff;
+
+  border: 1px solid #dce6f1;
+  border-radius: 15px;
+
+  color: #7890aa;
+
+  font-size: 13px;
+
+  box-shadow:
+    0 4px 14px rgba(33, 69, 110, 0.04);
+}
+
+.recommendations-message.error {
+  color: #ef4444;
+  border-color: #ffdada;
+}
+
+
+/* =========================================================
+   REFRESH ANIMATION
+   ========================================================= */
+
+.refresh-spin {
+  animation: recommendations-spin 1s linear infinite;
+}
+
+@keyframes recommendations-spin {
+
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+  .recommendation-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+
+@media (max-width: 800px) {
+
+  .recommendations-page {
+    padding: 28px 20px 40px;
+  }
+
+  .recommendations-header {
+    flex-direction: column;
+  }
+
+  .recommendations-refresh {
+    align-self: flex-start;
+  }
+
+  .recommendation-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .recommendation-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+}
+
+
+@media (max-width: 550px) {
+
+  .recommendations-header > div:first-child {
+    gap: 12px;
+  }
+
+  .recommendations-header > div:first-child::before {
+    width: 46px;
+    height: 46px;
+    font-size: 21px;
+  }
+
+  .recommendations-header h1 {
+    font-size: 25px;
+  }
+
+  .recommendation-card {
+    padding: 20px;
+    gap: 12px;
+  }
+
+  .recommendation-card:hover {
+    padding-left: 20px;
+  }
+
+  .recommendation-details {
+    gap: 10px 14px;
+  }
+
+}
