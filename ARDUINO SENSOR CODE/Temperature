@@ -1,0 +1,43 @@
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#define DS18B20_PIN 4
+OneWire oneWire(DS18B20_PIN);
+DallasTemperature ds18b20(&oneWire);
+void setup()
+{
+  Serial.begin(115200);
+  delay(1000);
+  Serial.println();
+  Serial.println("================================");
+  Serial.println("DS18B20 TEMPERATURE SENSOR");
+  Serial.println("================================");
+  ds18b20.begin();
+  Serial.println("DS18B20 started.");
+}
+void loop()
+{
+  // Request temperature
+  ds18b20.requestTemperatures();
+
+  // Read temperature in Celsius
+  float temperature =
+    ds18b20.getTempCByIndex(0);
+
+  // Check whether sensor is connected
+  if (
+    temperature == DEVICE_DISCONNECTED_C ||
+    temperature < -100 ||
+    temperature > 100
+  )
+  {
+    Serial.println("DS18B20: NOT CONNECTED");
+  }
+  else
+  {
+    Serial.print("Temperature: ");
+    Serial.print(temperature);
+    Serial.println(" °C");
+  }
+
+  delay(2000);
+}
