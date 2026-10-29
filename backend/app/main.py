@@ -12,14 +12,16 @@ from app.routers import (
     optimization,
     alerts,
     recommendations,
-    live_data
+    live_data,
+    auth
 )
 
 from app.models import (
     Machine,
     Sensor,
     EnergyReading,
-    Alert
+    Alert,
+    User
 )
 
 

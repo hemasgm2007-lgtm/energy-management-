@@ -1,73 +1,97 @@
+/* =========================================================
+   SMART ENERGY DASHBOARD
+   Compact UI/UX - Same Existing Layout & Format
+========================================================= */
+
 .dashboard {
+  width: 100%;
   max-width: 1600px;
-  margin: auto;
+  margin: 0 auto;
 }
+
+/* =========================================================
+   PAGE HEADING
+========================================================= */
 
 .page-heading {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 5px;
+  margin-bottom: 12px;
 }
 
 .eyebrow {
   color: #1677ed;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
-  letter-spacing: 1.4px;
-  margin-bottom: 6px;
+  letter-spacing: 1.2px;
+  margin-bottom: 4px;
 }
 
 .page-heading h1 {
-  font-size: 25px;
+  font-size: 22px;
+  line-height: 1.2;
   color: #18243a;
-  margin-bottom: 5px;
+  margin: 0 0 4px;
+  font-weight: 750;
 }
 
 .page-heading p {
   color: #7b8799;
-  font-size: 12px;
-  margin-bottom: 0;
+  font-size: 11px;
+  margin: 0;
 }
 
 .last-updated {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   background: #ffffff;
   border: 1px solid #e8edf3;
-  padding: 8px 12px;
+  padding: 7px 11px;
   border-radius: 8px;
-  font-size: 11px;
+  font-size: 10px;
   color: #66738a;
+  white-space: nowrap;
 }
+
+/* =========================================================
+   KPI / STAT CARDS
+========================================================= */
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 17px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 13px;
+  margin-bottom: 16px;
 }
 
 .stat-card {
   background: #ffffff;
-  border: 1px solid #e8edf3;
-  border-radius: 12px;
-  padding: 18px;
-  box-shadow: 0 2px 7px rgba(25, 45, 80, 0.03);
+  border: 1px solid #e5ebf3;
+  border-radius: 10px;
+  padding: 14px;
+  min-width: 0;
+  box-shadow: 0 2px 8px rgba(25, 45, 80, 0.035);
+  transition: 0.2s ease;
+}
+
+.stat-card:hover {
+  border-color: #cfe0f8;
+  box-shadow: 0 5px 14px rgba(25, 45, 80, 0.06);
 }
 
 .stat-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 15px;
+  margin-bottom: 11px;
 }
 
 .stat-icon {
-  width: 39px;
-  height: 39px;
-  border-radius: 9px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
   background: #edf5ff;
   color: #1677ed;
   display: flex;
@@ -75,11 +99,16 @@
   justify-content: center;
 }
 
+.stat-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
 .trend {
   display: flex;
   align-items: center;
   gap: 2px;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
 }
 
@@ -93,116 +122,137 @@
 
 .stat-title {
   color: #7b8798;
-  font-size: 11px;
-  margin-bottom: 4px;
+  font-size: 10px;
+  margin-bottom: 3px;
 }
 
 .stat-value {
   color: #172239;
-  font-size: 26px;
+  font-size: 23px;
+  line-height: 1.15;
   font-weight: 750;
 }
 
 .stat-value span {
   color: #8290a5;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
-  margin-left: 4px;
+  margin-left: 3px;
 }
 
 .stat-description {
   color: #9aa5b5;
-  font-size: 10px;
-  margin-top: 5px;
+  font-size: 9px;
+  margin-top: 4px;
 }
+
+/* =========================================================
+   MAIN DASHBOARD GRID
+========================================================= */
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 18px;
-  margin-bottom: 24px;
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
 }
+
+/* =========================================================
+   PANELS
+========================================================= */
 
 .panel {
   background: #ffffff;
-  border: 1px solid #e8edf3;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 7px rgba(25, 45, 80, 0.03);
+  border: 1px solid #e5ebf3;
+  border-radius: 10px;
+  padding: 16px;
+  min-width: 0;
+  box-shadow: 0 2px 8px rgba(25, 45, 80, 0.035);
 }
 
 .panel-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .panel-header h2 {
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.3;
   color: #1c2940;
-  margin-bottom: 4px;
+  margin: 0 0 3px;
+  font-weight: 700;
 }
 
 .panel-header p {
-  font-size: 10px;
+  font-size: 9px;
   color: #8a96a8;
+  margin: 0;
 }
 
 .ai-badge {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   background: #edf5ff;
   color: #1677ed;
-  border-radius: 20px;
-  padding: 6px 9px;
-  font-size: 9px;
+  border: 1px solid #d8e8fc;
+  border-radius: 18px;
+  padding: 5px 8px;
+  font-size: 8px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .chart-wrapper {
   width: 100%;
+  min-width: 0;
 }
 
+/* =========================================================
+   ENERGY MIX
+========================================================= */
+
 .energy-mix {
-  padding-top: 5px;
+  padding-top: 2px;
 }
 
 .mix-total {
   text-align: center;
-  padding: 5px 0 18px;
+  padding: 3px 0 12px;
 }
 
 .mix-total strong {
   display: block;
-  font-size: 29px;
+  font-size: 26px;
+  line-height: 1.1;
   color: #18243a;
 }
 
 .mix-total span {
   color: #8a96a8;
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .mix-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
+  font-size: 10px;
   color: #5e6b80;
-  margin-top: 12px;
+  margin-top: 9px;
 }
 
 .mix-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .mix-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   display: inline-block;
 }
@@ -225,15 +275,15 @@
 
 .mix-item strong {
   color: #26344a;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .mix-progress {
-  height: 5px;
+  height: 4px;
   background: #eef2f6;
   border-radius: 10px;
   overflow: hidden;
-  margin-top: 6px;
+  margin-top: 5px;
 }
 
 .mix-progress span {
@@ -243,112 +293,149 @@
   border-radius: inherit;
 }
 
+/* =========================================================
+   SECTION HEADING
+========================================================= */
+
 .section-heading {
   display: flex;
   justify-content: space-between;
-  margin: 3px 0 13px;
+  margin: 2px 0 10px;
 }
 
 .section-heading h2 {
-  font-size: 15px;
+  font-size: 14px;
   color: #1b2940;
+  margin: 0;
 }
 
 .section-heading p {
   color: #8995a7;
-  font-size: 10px;
-  margin-top: 3px;
+  font-size: 9px;
+  margin-top: 2px;
 }
+
+/* =========================================================
+   FORECAST CARDS
+========================================================= */
 
 .forecast-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
-  margin-bottom: 23px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
 .forecast-card {
   background: #ffffff;
-  border: 1px solid #e8edf3;
-  border-radius: 11px;
-  padding: 17px;
+  border: 1px solid #e5ebf3;
+  border-radius: 10px;
+  padding: 14px;
+  min-width: 0;
 }
 
 .forecast-card svg {
   color: #1677ed;
-  margin-bottom: 13px;
+  width: 18px;
+  height: 18px;
+  margin-bottom: 10px;
 }
 
 .forecast-card span {
   display: block;
   color: #7b8799;
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .forecast-card strong {
   display: block;
   color: #172239;
-  font-size: 21px;
-  margin-top: 4px;
+  font-size: 19px;
+  margin-top: 3px;
 }
 
 .forecast-card small {
   display: block;
   color: #9aa5b5;
-  font-size: 9px;
-  margin-top: 5px;
+  font-size: 8px;
+  margin-top: 4px;
 }
+
+/* =========================================================
+   SAVINGS
+========================================================= */
 
 .saving-badge {
   background: #eaf8f1;
   color: #15935a;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  padding: 6px 9px;
-  border-radius: 15px;
+  padding: 5px 8px;
+  border-radius: 14px;
 }
 
 .optimization-content {
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding: 14px 0 20px;
+  gap: 14px;
+  padding: 11px 0 16px;
 }
 
 .saving-number {
-  font-size: 40px;
+  font-size: 34px;
   font-weight: 800;
   color: #15935a;
 }
 
 .saving-text strong {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   color: #29364a;
 }
 
 .saving-text span {
   display: block;
   color: #8995a7;
-  font-size: 10px;
-  margin-top: 4px;
+  font-size: 9px;
+  margin-top: 3px;
 }
+
+/* =========================================================
+   SOURCE ORDER
+========================================================= */
 
 .source-order {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   flex-wrap: wrap;
   color: #657287;
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .source-order span {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: #edf5ff;
   color: #1677ed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   ALERTS
+========================================================= */
+
+.alert-count {
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff1f1;
+  color: #e5484d;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -356,26 +443,13 @@
   font-weight: 700;
 }
 
-.alert-count {
-  min-width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #fff1f1;
-  color: #e5484d;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
-}
-
 .alert-item {
   display: flex;
   align-items: flex-start;
-  gap: 11px;
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 9px;
+  gap: 9px;
+  padding: 10px;
+  border-radius: 7px;
+  margin-bottom: 7px;
 }
 
 .alert-item.high {
@@ -391,29 +465,34 @@
 .alert-item strong {
   display: block;
   color: #354156;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .alert-item span {
   display: block;
   color: #8995a7;
-  font-size: 9px;
-  margin-top: 3px;
+  font-size: 8px;
+  margin-top: 2px;
 }
+
+/* =========================================================
+   SYSTEM SUMMARY
+========================================================= */
 
 .system-summary {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
   background: #ffffff;
-  border: 1px solid #e8edf3;
-  border-radius: 12px;
-  padding: 17px 20px;
+  border: 1px solid #e5ebf3;
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(25, 45, 80, 0.035);
 }
 
 .system-summary div {
   border-right: 1px solid #edf0f4;
-  padding-right: 10px;
+  padding-right: 8px;
 }
 
 .system-summary div:last-child {
@@ -423,29 +502,90 @@
 .system-summary span {
   display: block;
   color: #8995a7;
-  font-size: 9px;
-  margin-bottom: 4px;
+  font-size: 8px;
+  margin-bottom: 3px;
 }
 
 .system-summary strong {
   color: #26344a;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .online-text {
   color: #15935a !important;
 }
 
-@media (max-width: 1100px) {
-  .stats-grid,
+/* =========================================================
+   ANALYTICS CHARTS
+========================================================= */
+
+.dashboard-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.dashboard-chart-panel {
+  min-width: 0;
+}
+
+.dashboard-chart-panel .chart-wrapper {
+  margin-top: 3px;
+}
+
+/* =========================================================
+   RECHARTS
+========================================================= */
+
+.recharts-tooltip-wrapper {
+  outline: none;
+}
+
+.recharts-default-tooltip {
+  border: 1px solid #e8edf3 !important;
+  border-radius: 7px !important;
+  box-shadow: 0 4px 14px rgba(25, 45, 80, 0.08) !important;
+  font-size: 10px !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, minmax(180px, 1fr));
+    overflow-x: auto;
+  }
+
+  .stat-card {
+    min-width: 180px;
+  }
+
   .forecast-cards {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .dashboard-charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 800px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    overflow: visible;
+  }
+
+  .stat-card {
+    min-width: 0;
   }
 
   .system-summary {
@@ -466,63 +606,28 @@
 
   .page-heading {
     align-items: flex-start;
-    gap: 15px;
+    gap: 10px;
     flex-direction: column;
+  }
+
+  .last-updated {
+    align-self: flex-start;
   }
 
   .search-box {
     display: none;
   }
-}
 
-/* ================================
-   DASHBOARD ANALYTICS CHARTS
-================================ */
-
-.dashboard-charts-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  margin-bottom: 24px;
-}
-
-.dashboard-chart-panel {
-  min-width: 0;
-}
-
-.dashboard-chart-panel .chart-wrapper {
-  margin-top: 5px;
-}
-
-/* Recharts tooltip */
-
-.recharts-tooltip-wrapper {
-  outline: none;
-}
-
-.recharts-default-tooltip {
-  border: 1px solid #e8edf3 !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 14px rgba(25, 45, 80, 0.08) !important;
-  font-size: 11px !important;
-}
-
-/* Responsive */
-
-@media (max-width: 900px) {
   .dashboard-charts-grid {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 550px) {
-  .dashboard-charts-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 12px;
   }
 
   .dashboard-chart-panel {
-    padding: 14px;
+    padding: 12px;
+  }
+
+  .panel {
+    padding: 13px;
   }
 }
-

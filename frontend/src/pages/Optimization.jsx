@@ -1,24 +1,26 @@
 import { useEffect, useState } from "react";
+
 import {
-  Zap,
-  TrendingDown,
-  Activity,
-  Leaf,
-  RefreshCw,
-  Lightbulb,
-  CheckCircle,
   Sun,
   Wind,
-  Flame,
+  BatteryCharging,
+  Factory,
   Fuel,
+  Zap,
+  TrendingDown,
+  Clock,
+  RefreshCw,
+  CheckCircle,
+  AlertTriangle,
+  Activity,
 } from "lucide-react";
 
 import "../styles/Optimization.css";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "http://10.74.4.75:8000";
 
 function Optimization() {
-  const [data, setData] = useState(null);
+  const [optimization, setOptimization] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -30,15 +32,20 @@ function Optimization() {
       const response = await fetch(`${API_URL}/optimization/`);
 
       if (!response.ok) {
-        throw new Error("Unable to fetch optimization data");
+        throw new Error(
+          `Optimization API returned ${response.status}`
+        );
       }
 
-      const result = await response.json();
+      const data = await response.json();
 
-      setData(result?.data ?? result);
+      setOptimization(data);
     } catch (err) {
-      console.error("Optimization API error:", err);
-      setError("Unable to connect to the FastAPI backend.");
+      console.error("Optimization fetch error:", err);
+
+      setError(
+        "Unable to load optimization data. Make sure the FastAPI backend is running."
+      );
     } finally {
       setLoading(false);
     }
@@ -51,8 +58,9 @@ function Optimization() {
   if (loading) {
     return (
       <div className="optimization-page">
-        <div className="optimization-message">
-          Loading optimization data...
+        <div className="optimization-loading">
+          <RefreshCw size={28} className="spin" />
+          <p>Loading energy optimization...</p>
         </div>
       </div>
     );
@@ -61,400 +69,787 @@ function Optimization() {
   if (error) {
     return (
       <div className="optimization-page">
-        <div className="optimization-message error">
-          {error}
+        <div className="optimization-error">
+          <AlertTriangle size={30} />
+          <h3>Optimization Data Unavailable</h3>
+          <p>{error}</p>
+
+          <button
+            className="retry-button"
+            onClick={fetchOptimization}
+          >
+            <RefreshCw size={17} />
+            Retry
+          </button>
         </div>
       </div>
     );
   }
 
-  const strategy = data?.strategy || [];
+  if (!optimization) {
+    return null;
+  }
 
-  const totalGeneration = Number(data?.total_generation_kw || 0);
+  const strategy = Array.isArray(optimization.strategy)
+    ? optimization.strategy
+    : [];
 
-  const fuelBefore = Number(
-    data?.fuel_consumption_without_optimization || 0
-  );
+  const hourlyOptimization = Array.isArray(
+    optimization.hourly_optimization
+  )
+    ? optimization.hourly_optimization
+    : [];
 
-  const fuelAfter = Number(
-    data?.fuel_consumption_with_optimization || 0
-  );
+  const batteryCapacity =
+    Number(optimization.battery_capacity_kwh) || 0;
 
-  const savingPercentage = Number(
-    data?.fuel_saving_percent || 0
-  );
+  const batteryFinalSOC =
+    Number(optimization.battery_final_soc_kwh) || 0;
 
-  const fuelSaving = Math.max(
-    fuelBefore - fuelAfter,
-    0
-  );
+  const batteryFinalPercent =
+    Number(optimization.battery_final_soc_percent) || 0;
 
-  const recommendedAction =
-    data?.recommended_action ||
-    "Continue using renewable energy sources as the primary supply.";
+  const batteryCharge =
+    Number(optimization.total_battery_charge_kwh) || 0;
+
+  const batteryDischarge =
+    Number(optimization.total_battery_discharge_kwh) || 0;
+
+  const fuelSavingPercent =
+    Number(optimization.fuel_saving_percent) || 0;
+
+  const fuelSaving =
+    Number(optimization.fuel_saving) || 0;
+
+  const predictedDemand =
+    Number(optimization.predicted_demand_kw) || 0;
+
+  const totalDemand =
+    Number(optimization.total_predicted_demand_kwh) || 0;
+
+  const renewableGeneration =
+    Number(optimization.renewable_generation_kwh) || 0;
+
+  const dieselGeneration =
+    Number(optimization.total_diesel_generation_kwh) || 0;
 
   const getSourceIcon = (source) => {
     const name = source.toLowerCase();
 
     if (name.includes("solar")) {
-      return <Sun size={20} />;
+      return <Sun size={22} />;
     }
 
     if (name.includes("wind")) {
-      return <Wind size={20} />;
+      return <Wind size={22} />;
+    }
+
+    if (name.includes("battery")) {
+      return <BatteryCharging size={22} />;
     }
 
     if (name.includes("chp")) {
-      return <Flame size={20} />;
+      return <Factory size={22} />;
     }
 
     if (name.includes("diesel")) {
-      return <Fuel size={20} />;
+      return <Fuel size={22} />;
     }
 
-    return <Zap size={20} />;
+    return <Zap size={22} />;
+  };
+
+  const getStatusClass = (status) => {
+    if (!status) return "";
+
+    const value = status.toLowerCase();
+
+    if (
+      value.includes("primary") ||
+      value.includes("active")
+    ) {
+      return "status-primary";
+    }
+
+    if (value.includes("support")) {
+      return "status-support";
+    }
+
+    if (value.includes("backup required")) {
+      return "status-warning";
+    }
+
+    if (value.includes("backup")) {
+      return "status-backup";
+    }
+
+    if (value.includes("charging")) {
+      return "status-storage";
+    }
+
+    if (value.includes("standby")) {
+      return "status-standby";
+    }
+
+    return "";
   };
 
   return (
     <div className="optimization-page">
 
-      {/* HEADER */}
+      {/* =====================================================
+          PAGE HEADER
+      ====================================================== */}
+
       <div className="optimization-header">
+        <div>
+          <h1>Energy Optimization</h1>
 
-        <div className="optimization-title">
+          <p>
+            AI-based energy source scheduling and simulated
+            storage management
+          </p>
+        </div>
 
-          <div className="optimization-title-icon">
+        <button
+          className="refresh-button"
+          onClick={fetchOptimization}
+        >
+          <RefreshCw size={17} />
+          Refresh
+        </button>
+      </div>
+
+
+      {/* =====================================================
+          PROTOTYPE NOTICE
+      ====================================================== */}
+
+      <div className="simulation-banner">
+        <Activity size={20} />
+
+        <div>
+          <strong>
+            Prototype Simulation
+          </strong>
+
+          <span>
+            Energy demand, generation forecast and battery
+            storage are currently simulated because the
+            research-station machines and physical storage
+            system are not yet available.
+          </span>
+        </div>
+      </div>
+
+
+      {/* =====================================================
+          SUMMARY CARDS
+      ====================================================== */}
+
+      <div className="optimization-summary">
+
+        <div className="optimization-card">
+          <div className="optimization-card-icon demand-icon">
             <Zap size={23} />
           </div>
 
           <div>
-            <h1>Energy Optimization</h1>
+            <span>Peak Demand</span>
 
-            <p>
-              AI-powered energy source scheduling
-            </p>
+            <strong>
+              {predictedDemand.toFixed(1)} kW
+            </strong>
+
+            <small>
+              Peak hour: {optimization.peak_hour || "--"}
+            </small>
           </div>
-
         </div>
 
-        <button
-          className="optimization-refresh"
-          onClick={fetchOptimization}
-        >
-          <RefreshCw size={16} />
-          Refresh
-        </button>
-
-      </div>
-
-
-      {/* SUMMARY CARDS */}
-      <div className="optimization-stats">
 
         <div className="optimization-card">
-
-          <div className="optimization-icon blue">
-            <Activity size={21} />
+          <div className="optimization-card-icon renewable-icon">
+            <Sun size={23} />
           </div>
 
           <div>
-            <span>Total Generation</span>
+            <span>Renewable Generation</span>
 
             <strong>
-              {totalGeneration.toFixed(1)}{" "}
-              <small>kW</small>
+              {renewableGeneration.toFixed(1)} kWh
             </strong>
-          </div>
 
+            <small>
+              Solar + Wind
+            </small>
+          </div>
         </div>
 
 
         <div className="optimization-card">
-
-          <div className="optimization-icon purple">
-            <TrendingDown size={21} />
+          <div className="optimization-card-icon battery-icon">
+            <BatteryCharging size={23} />
           </div>
 
           <div>
-            <span>Fuel Before</span>
+            <span>Battery SOC</span>
 
             <strong>
-              {fuelBefore.toFixed(1)}
+              {batteryFinalSOC.toFixed(1)} kWh
             </strong>
-          </div>
 
+            <small>
+              {batteryFinalPercent.toFixed(1)}% of{" "}
+              {batteryCapacity.toFixed(0)} kWh
+            </small>
+          </div>
         </div>
 
 
         <div className="optimization-card">
-
-          <div className="optimization-icon green">
-            <Leaf size={21} />
-          </div>
-
-          <div>
-            <span>Fuel After</span>
-
-            <strong>
-              {fuelAfter.toFixed(1)}
-            </strong>
-          </div>
-
-        </div>
-
-
-        <div className="optimization-card">
-
-          <div className="optimization-icon orange">
-            <TrendingDown size={21} />
+          <div className="optimization-card-icon saving-icon">
+            <TrendingDown size={23} />
           </div>
 
           <div>
             <span>Fuel Saving</span>
 
             <strong>
-              {savingPercentage.toFixed(1)}
-              <small>%</small>
+              {fuelSavingPercent.toFixed(1)}%
             </strong>
-          </div>
 
+            <small>
+              {fuelSaving.toFixed(1)} fuel units
+            </small>
+          </div>
         </div>
 
       </div>
 
 
-      {/* OPTIMIZATION PERFORMANCE */}
-      <div className="optimization-panel">
+      {/* =====================================================
+          BATTERY STORAGE
+      ====================================================== */}
 
-        <div className="optimization-panel-header">
+      <section className="optimization-section">
 
+        <div className="section-title">
           <div>
-            <h2>Optimization Performance</h2>
+            <h2>Battery Storage</h2>
 
             <p>
-              Comparison of energy operation before and
-              after optimization
+              Simulated energy storage state across the
+              forecast period
             </p>
           </div>
 
-          <div className="optimization-status">
-            <span></span>
-            Optimization Active
-          </div>
+          <div className="storage-status">
+            <BatteryCharging size={18} />
 
+            Simulated Storage
+          </div>
         </div>
 
 
-        <div className="optimization-content">
+        <div className="battery-panel">
 
-          <div className="power-comparison">
+          <div className="battery-main">
 
-            <div className="power-box">
-
-              <span>Without Optimization</span>
-
-              <strong>
-                {fuelBefore.toFixed(1)}
-              </strong>
-
-              <small>
-                Fuel Consumption
-              </small>
-
-              <div className="power-bar">
-                <div
-                  className="current-power-fill"
-                  style={{
-                    width: "100%",
-                  }}
-                ></div>
-              </div>
-
-            </div>
-
-
-            <div className="optimization-arrow">
-              →
-            </div>
-
-
-            <div className="power-box">
-
-              <span>With Optimization</span>
-
-              <strong>
-                {fuelAfter.toFixed(1)}
-              </strong>
-
-              <small>
-                Fuel Consumption
-              </small>
-
-              <div className="power-bar">
-                <div
-                  className="optimized-power-fill"
-                  style={{
-                    width: `${Math.max(
-                      (fuelAfter / fuelBefore) * 100,
-                      5
-                    )}%`,
-                  }}
-                ></div>
-              </div>
-
-            </div>
-
-          </div>
-
-
-          {/* SAVING */}
-          <div className="optimization-saving">
-
-            <TrendingDown size={22} />
-
-            <div>
-              <strong>
-                {savingPercentage.toFixed(1)}% Fuel Saved
-              </strong>
-
-              <span>
-                Estimated saving: {fuelSaving.toFixed(1)} units
-              </span>
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      {/* ENERGY SOURCE SCHEDULING */}
-      <div className="recommendation-panel">
-
-        <div className="recommendation-header">
-
-          <div className="recommendation-title">
-
-            <div className="recommendation-icon">
-              <Zap size={21} />
+            <div className="battery-icon-large">
+              <BatteryCharging size={32} />
             </div>
 
             <div>
-              <h2>Energy Source Scheduling</h2>
+              <span>Final State of Charge</span>
+
+              <h3>
+                {batteryFinalSOC.toFixed(1)} kWh
+              </h3>
 
               <p>
-                Recommended priority for energy generation
+                {batteryFinalPercent.toFixed(1)}% remaining
               </p>
             </div>
 
           </div>
 
+
+          <div className="battery-progress-container">
+
+            <div className="battery-progress-header">
+              <span>
+                Battery Capacity
+              </span>
+
+              <strong>
+                {batteryFinalSOC.toFixed(1)} /{" "}
+                {batteryCapacity.toFixed(1)} kWh
+              </strong>
+            </div>
+
+            <div className="battery-progress">
+              <div
+                className="battery-progress-fill"
+                style={{
+                  width: `${Math.min(
+                    Math.max(batteryFinalPercent, 0),
+                    100
+                  )}%`,
+                }}
+              />
+            </div>
+
+            <div className="battery-progress-labels">
+              <span>0 kWh</span>
+              <span>
+                {batteryCapacity.toFixed(0)} kWh
+              </span>
+            </div>
+
+          </div>
+
+
+          <div className="battery-stats">
+
+            <div>
+              <span>Charged</span>
+
+              <strong>
+                +{batteryCharge.toFixed(1)} kWh
+              </strong>
+            </div>
+
+            <div>
+              <span>Discharged</span>
+
+              <strong>
+                -{batteryDischarge.toFixed(1)} kWh
+              </strong>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* =====================================================
+          SOURCE STRATEGY
+      ====================================================== */}
+
+      <section className="optimization-section">
+
+        <div className="section-title">
+          <div>
+            <h2>Energy Source Strategy</h2>
+
+            <p>
+              Source priority during the predicted peak
+              period
+            </p>
+          </div>
+
+          <div className="peak-badge">
+            <Clock size={16} />
+
+            Peak: {optimization.peak_hour || "--"}
+          </div>
         </div>
 
 
-        <div className="recommendation-list">
+        <div className="strategy-list">
 
-          {strategy.length > 0 ? (
+          {strategy.map((item, index) => (
 
-            strategy.map((source, index) => (
+            <div
+              className="strategy-row"
+              key={`${item.source}-${index}`}
+            >
 
-              <div
-                className="recommendation-item"
-                key={source.source || index}
-              >
+              <div className="strategy-priority">
+                {item.priority}
+              </div>
 
-                <div className="source-priority">
-                  {source.priority || index + 1}
-                </div>
 
-                <div className="source-icon">
-                  {getSourceIcon(source.source || "")}
-                </div>
+              <div className="strategy-source-icon">
+                {getSourceIcon(item.source)}
+              </div>
 
-                <div className="source-info">
 
-                  <strong>
-                    {source.source}
-                  </strong>
+              <div className="strategy-source">
 
-                  <span>
-                    {source.status}
-                  </span>
+                <strong>
+                  {item.source}
+                </strong>
 
-                </div>
-
-                <div className="source-power">
-
-                  <strong>
-                    {Number(source.power_kw || 0).toFixed(1)}
-                    {" "}
-                    kW
-                  </strong>
-
-                </div>
+                <span>
+                  Priority {item.priority}
+                </span>
 
               </div>
 
-            ))
 
-          ) : (
+              <div className="strategy-power">
 
-            <div className="no-recommendations">
+                <strong>
+                  {Number(item.power_kw || 0).toFixed(1)}
+                  {" "}kW
+                </strong>
 
-              <Lightbulb size={35} />
+              </div>
 
-              <h3>
-                No scheduling data available
-              </h3>
+
+              <div
+                className={`strategy-status ${getStatusClass(
+                  item.status
+                )}`}
+              >
+                {item.status}
+              </div>
 
             </div>
 
-          )}
+          ))}
 
         </div>
 
-      </div>
+      </section>
 
 
-      {/* RECOMMENDED ACTION */}
-      <div className="optimization-insight">
+      {/* =====================================================
+          6-HOUR FORECAST
+      ====================================================== */}
 
-        <div className="optimization-insight-icon">
-          <CheckCircle size={21} />
+      <section className="optimization-section">
+
+        <div className="section-title">
+
+          <div>
+            <h2>
+              6-Hour Energy Schedule
+            </h2>
+
+            <p>
+              Hour-by-hour simulated source allocation
+            </p>
+          </div>
+
+          <div className="forecast-badge">
+            {optimization.forecast_horizon || "6 hours"}
+          </div>
+
+        </div>
+
+
+        <div className="forecast-table-wrapper">
+
+          <table className="forecast-table">
+
+            <thead>
+              <tr>
+                <th>Hour</th>
+                <th>Demand</th>
+                <th>Solar</th>
+                <th>Wind</th>
+                <th>Battery</th>
+                <th>CHP</th>
+                <th>Diesel</th>
+                <th>Battery SOC</th>
+              </tr>
+            </thead>
+
+
+            <tbody>
+
+              {hourlyOptimization.map(
+                (item, index) => {
+
+                  const batteryValue =
+                    Number(
+                      item.battery_discharge_kw || 0
+                    );
+
+                  const batteryCharge =
+                    Number(
+                      item.battery_charge_kw || 0
+                    );
+
+                  return (
+                    <tr key={`${item.hour}-${index}`}>
+
+                      <td>
+                        <strong>
+                          {item.hour}
+                        </strong>
+                      </td>
+
+                      <td>
+                        {Number(
+                          item.demand_kw || 0
+                        ).toFixed(1)}
+                        {" "}kW
+                      </td>
+
+                      <td>
+                        <span className="solar-value">
+                          {Number(
+                            item.solar_kw || 0
+                          ).toFixed(1)}
+                        </span>
+                        {" "}kW
+                      </td>
+
+                      <td>
+                        <span className="wind-value">
+                          {Number(
+                            item.wind_kw || 0
+                          ).toFixed(1)}
+                        </span>
+                        {" "}kW
+                      </td>
+
+                      <td>
+
+                        {batteryValue > 0 ? (
+                          <span className="battery-discharge">
+                            -{batteryValue.toFixed(1)} kW
+                          </span>
+                        ) : batteryCharge > 0 ? (
+                          <span className="battery-charge">
+                            +{batteryCharge.toFixed(1)} kW
+                          </span>
+                        ) : (
+                          <span>0.0 kW</span>
+                        )}
+
+                      </td>
+
+                      <td>
+                        {Number(
+                          item.chp_kw || 0
+                        ).toFixed(1)}
+                        {" "}kW
+                      </td>
+
+                      <td>
+
+                        <span
+                          className={
+                            Number(
+                              item.diesel_kw || 0
+                            ) > 0
+                              ? "diesel-active"
+                              : "diesel-zero"
+                          }
+                        >
+                          {Number(
+                            item.diesel_kw || 0
+                          ).toFixed(1)}
+                        </span>
+
+                        {" "}kW
+
+                      </td>
+
+                      <td>
+
+                        <div className="soc-cell">
+
+                          <div className="soc-bar">
+                            <div
+                              className="soc-fill"
+                              style={{
+                                width: `${Math.min(
+                                  Math.max(
+                                    Number(
+                                      item.battery_soc_percent || 0
+                                    ),
+                                    0
+                                  ),
+                                  100
+                                )}%`,
+                              }}
+                            />
+                          </div>
+
+                          <span>
+                            {Number(
+                              item.battery_soc_percent || 0
+                            ).toFixed(0)}
+                            %
+                          </span>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+                  );
+                }
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+
+      {/* =====================================================
+          FUEL COMPARISON
+      ====================================================== */}
+
+      <section className="optimization-section">
+
+        <div className="section-title">
+
+          <div>
+            <h2>
+              Fuel Consumption Comparison
+            </h2>
+
+            <p>
+              Estimated six-hour fuel usage
+            </p>
+          </div>
+
+          <TrendingDown size={22} />
+
+        </div>
+
+
+        <div className="fuel-comparison">
+
+          <div className="fuel-box">
+
+            <span>
+              Without Optimization
+            </span>
+
+            <strong>
+              {Number(
+                optimization.fuel_consumption_without_optimization || 0
+              ).toFixed(1)}
+            </strong>
+
+            <small>
+              Diesel-only reference
+            </small>
+
+          </div>
+
+
+          <div className="fuel-arrow">
+            ↓
+          </div>
+
+
+          <div className="fuel-box optimized">
+
+            <span>
+              With Optimization
+            </span>
+
+            <strong>
+              {Number(
+                optimization.fuel_consumption_with_optimization || 0
+              ).toFixed(1)}
+            </strong>
+
+            <small>
+              Renewable + Storage + CHP + Diesel
+            </small>
+
+          </div>
+
+
+          <div className="fuel-saving-box">
+
+            <CheckCircle size={24} />
+
+            <div>
+
+              <span>
+                Estimated Saving
+              </span>
+
+              <strong>
+                {fuelSavingPercent.toFixed(1)}%
+              </strong>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* =====================================================
+          RECOMMENDED ACTION
+      ====================================================== */}
+
+      <section className="recommendation-section">
+
+        <div className="recommendation-icon">
+          <CheckCircle size={25} />
         </div>
 
         <div>
 
-          <h3>Recommended Action</h3>
+          <h3>
+            Recommended Energy Strategy
+          </h3>
 
           <p>
-            {recommendedAction}
+            {optimization.recommended_action}
           </p>
 
         </div>
 
-      </div>
+      </section>
 
 
-      {/* AI INSIGHT */}
-      <div className="optimization-insight">
+      {/* =====================================================
+          PROTOTYPE FOOTER INFORMATION
+      ====================================================== */}
 
-        <div className="optimization-insight-icon">
-          <Zap size={21} />
-        </div>
+      <div className="optimization-footer">
 
-        <div>
+        <span>
+          <Activity size={15} />
+          Optimization Status:{" "}
+          <strong>
+            {optimization.optimization_status || "Active"}
+          </strong>
+        </span>
 
-          <h3>AI Optimization Insight</h3>
+        <span>
+          Data Type:{" "}
+          <strong>
+            {optimization.data_type ||
+              "Predicted / Simulated"}
+          </strong>
+        </span>
 
-          <p>
-            Renewable energy sources are prioritized first,
-            followed by CHP support, while diesel generation
-            is kept primarily for backup operation.
-          </p>
+        <span>
+          Total Predicted Demand:{" "}
+          <strong>
+            {totalDemand.toFixed(1)} kWh
+          </strong>
+        </span>
 
-        </div>
+        <span>
+          Diesel Requirement:{" "}
+          <strong>
+            {dieselGeneration.toFixed(1)} kWh
+          </strong>
+        </span>
 
       </div>
 

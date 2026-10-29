@@ -1,20 +1,24 @@
 import { useEffect, useState } from "react";
+
 import {
   Bell,
   AlertTriangle,
   CheckCircle,
   Zap,
   RefreshCw,
+  ShieldAlert,
+  Clock,
+  CircleCheck,
 } from "lucide-react";
 
 import "../styles/Alerts.css";
-
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "http://10.22.173.75:8000";
 
 function Alerts() {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [resolvingId, setResolvingId] = useState(null);
 
   const fetchAlerts = async () => {
     try {
@@ -36,7 +40,10 @@ function Alerts() {
       setAlerts(alertData);
     } catch (err) {
       console.error("Alerts API error:", err);
-      setError("Unable to connect to the FastAPI backend.");
+
+      setError(
+        "Unable to connect to the FastAPI backend."
+      );
     } finally {
       setLoading(false);
     }
@@ -46,23 +53,81 @@ function Alerts() {
     fetchAlerts();
   }, []);
 
+  const resolveAlert = async (alertId) => {
+    try {
+      setResolvingId(alertId);
+
+      const response = await fetch(
+        `${API_URL}/alerts/${alertId}/resolve`,
+        {
+          method: "PATCH",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Unable to resolve alert");
+      }
+
+      await fetchAlerts();
+    } catch (err) {
+      console.error("Resolve alert error:", err);
+
+      setError("Unable to resolve the alert.");
+    } finally {
+      setResolvingId(null);
+    }
+  };
+
   const activeAlerts = alerts.filter(
-    (alert) =>
-      alert.is_resolved === false ||
-      alert.status?.toLowerCase() === "active" ||
-      alert.status?.toLowerCase() === "unresolved"
-  ).length;
+    (alert) => alert.is_resolved !== true
+  );
 
   const resolvedAlerts = alerts.filter(
+    (alert) => alert.is_resolved === true
+  );
+
+  const highSeverityAlerts = alerts.filter(
     (alert) =>
-      alert.is_resolved === true ||
-      alert.status?.toLowerCase() === "resolved"
-  ).length;
+      alert.severity?.toLowerCase() === "high"
+  );
+
+  const getSeverityClass = (severity) => {
+    const value = severity?.toLowerCase();
+
+    if (value === "high") {
+      return "high";
+    }
+
+    if (value === "medium") {
+      return "medium";
+    }
+
+    if (value === "low") {
+      return "low";
+    }
+
+    return "medium";
+  };
+
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) {
+      return "Recently";
+    }
+
+    const date = new Date(timestamp);
+
+    if (Number.isNaN(date.getTime())) {
+      return "Recently";
+    }
+
+    return date.toLocaleString();
+  };
 
   return (
     <div className="alerts-page">
 
       {/* HEADER */}
+
       <div className="alerts-header">
 
         <div className="alerts-title">
@@ -75,7 +140,7 @@ function Alerts() {
             <h1>Alerts</h1>
 
             <p>
-              Monitor energy consumption warnings and system events
+              Monitor energy warnings and predictive system events
             </p>
           </div>
 
@@ -84,15 +149,43 @@ function Alerts() {
         <button
           className="alerts-refresh"
           onClick={fetchAlerts}
+          disabled={loading}
         >
-          <RefreshCw size={16} />
+          <RefreshCw
+            size={16}
+            className={loading ? "alerts-spin" : ""}
+          />
+
           Refresh
         </button>
 
       </div>
 
+      {/* SIMULATION NOTICE */}
 
-      {/* SUMMARY CARDS */}
+      <div className="alerts-simulation-banner">
+
+        <div className="simulation-icon">
+          <ShieldAlert size={19} />
+        </div>
+
+        <div className="simulation-content">
+          <strong>Simulated Alert Monitoring</strong>
+
+          <p>
+            Alert events shown here are simulated for the
+            polar research station prototype.
+          </p>
+        </div>
+
+        <span className="simulation-label">
+          Simulated
+        </span>
+
+      </div>
+
+      {/* STATISTICS */}
+
       <div className="alerts-stats">
 
         <div className="alert-stat-card">
@@ -108,7 +201,6 @@ function Alerts() {
 
         </div>
 
-
         <div className="alert-stat-card">
 
           <div className="alert-stat-icon orange">
@@ -117,11 +209,10 @@ function Alerts() {
 
           <div>
             <span>Active Alerts</span>
-            <strong>{activeAlerts}</strong>
+            <strong>{activeAlerts.length}</strong>
           </div>
 
         </div>
-
 
         <div className="alert-stat-card">
 
@@ -131,29 +222,28 @@ function Alerts() {
 
           <div>
             <span>Resolved</span>
-            <strong>{resolvedAlerts}</strong>
+            <strong>{resolvedAlerts.length}</strong>
           </div>
 
         </div>
 
-
         <div className="alert-stat-card">
 
           <div className="alert-stat-icon blue">
-            <Bell size={21} />
+            <ShieldAlert size={21} />
           </div>
 
           <div>
-            <span>Monitoring</span>
-            <strong>Live</strong>
+            <span>High Severity</span>
+            <strong>{highSeverityAlerts.length}</strong>
           </div>
 
         </div>
 
       </div>
 
+      {/* ALERT HISTORY */}
 
-      {/* ALERT PANEL */}
       <div className="alerts-panel">
 
         <div className="alerts-panel-header">
@@ -162,131 +252,192 @@ function Alerts() {
             <h2>Alert History</h2>
 
             <p>
-              Energy monitoring alerts generated by the system
+              Predictive energy monitoring events
             </p>
           </div>
 
           <span className="alert-live-badge">
-            ● Live
+            ● Simulated
           </span>
 
         </div>
 
+        {/* LOADING */}
 
-        {loading ? (
-
+        {loading && (
           <div className="alerts-message">
             Loading alerts...
           </div>
+        )}
 
-        ) : error ? (
+        {/* ERROR */}
 
+        {!loading && error && (
           <div className="alerts-message error">
             {error}
           </div>
+        )}
 
-        ) : alerts.length === 0 ? (
+        {/* EMPTY */}
 
-          <div className="alerts-empty">
+        {!loading &&
+          !error &&
+          alerts.length === 0 && (
+            <div className="alerts-empty">
 
-            <CheckCircle size={42} />
+              <CircleCheck size={44} />
 
-            <h3>No alerts detected</h3>
+              <h3>No alerts detected</h3>
 
-            <p>
-              Your energy monitoring system currently has no alerts.
-            </p>
+              <p>
+                The simulated energy monitoring system
+                currently has no active alerts.
+              </p>
 
-          </div>
+            </div>
+          )}
 
-        ) : (
+        {/* ALERT LIST */}
 
-          <div className="alert-list">
+        {!loading &&
+          !error &&
+          alerts.length > 0 && (
 
-            {alerts.map((alert, index) => {
+            <div className="alert-list">
 
-              const resolved =
-                alert.is_resolved === true ||
-                alert.status?.toLowerCase() === "resolved";
+              {alerts.map((alert, index) => {
 
-              return (
-                <div
-                  className={`alert-row ${
-                    resolved ? "resolved" : "active-alert"
-                  }`}
-                  key={alert.id || index}
-                >
+                const resolved =
+                  alert.is_resolved === true;
 
-                  <div className="alert-icon">
+                const severityClass =
+                  getSeverityClass(alert.severity);
 
-                    {resolved ? (
-                      <CheckCircle size={21} />
-                    ) : (
-                      <AlertTriangle size={21} />
+                return (
+                  <div
+                    className={`alert-row ${
+                      resolved
+                        ? "resolved"
+                        : "active-alert"
+                    }`}
+                    key={alert.id || index}
+                  >
+
+                    {/* ICON */}
+
+                    <div
+                      className={`alert-icon ${severityClass}`}
+                    >
+                      {resolved ? (
+                        <CheckCircle size={21} />
+                      ) : (
+                        <AlertTriangle size={21} />
+                      )}
+                    </div>
+
+                    {/* MAIN */}
+
+                    <div className="alert-main">
+
+                      <div className="alert-title-line">
+
+                        <strong>
+                          {alert.title ||
+                            "Energy Alert"}
+                        </strong>
+
+                        <span
+                          className={`severity-badge ${severityClass}`}
+                        >
+                          {alert.severity ||
+                            "Medium"}
+                        </span>
+
+                      </div>
+
+                      <p>
+                        {alert.message ||
+                          "Energy monitoring event detected."}
+                      </p>
+
+                      <div className="alert-time">
+
+                        <Clock size={12} />
+
+                        {formatTimestamp(
+                          alert.timestamp
+                        )}
+
+                      </div>
+
+                    </div>
+
+                    {/* VALUE */}
+
+                    <div className="alert-value">
+
+                      <span>Value</span>
+
+                      <strong>
+                        {alert.value !== null &&
+                        alert.value !== undefined
+                          ? `${Number(
+                              alert.value
+                            ).toFixed(1)} kW`
+                          : "—"}
+                      </strong>
+
+                    </div>
+
+                    {/* STATUS */}
+
+                    <div className="alert-status">
+
+                      <span
+                        className={
+                          resolved
+                            ? "resolved-badge"
+                            : "active-badge"
+                        }
+                      >
+                        ●{" "}
+                        {resolved
+                          ? "Resolved"
+                          : "Active"}
+                      </span>
+
+                    </div>
+
+                    {/* RESOLVE */}
+
+                    {!resolved && (
+                      <button
+                        className="resolve-button"
+                        onClick={() =>
+                          resolveAlert(alert.id)
+                        }
+                        disabled={
+                          resolvingId === alert.id
+                        }
+                      >
+                        {resolvingId === alert.id
+                          ? "Resolving..."
+                          : "Resolve"}
+                      </button>
+                    )}
+
+                    {resolved && (
+                      <div className="resolved-check">
+                        <CheckCircle size={18} />
+                      </div>
                     )}
 
                   </div>
+                );
+              })}
 
-
-                  <div className="alert-main">
-
-                    <strong>
-                      {alert.alert_type ||
-                        alert.type ||
-                        "Energy Alert"}
-                    </strong>
-
-                    <p>
-                      {alert.message ||
-                        "Energy monitoring threshold exceeded."}
-                    </p>
-
-                  </div>
-
-
-                  <div className="alert-power">
-
-                    <span>Power</span>
-
-                    <strong>
-                      {alert.power_kw ?? 0} kW
-                    </strong>
-
-                  </div>
-
-
-                  <div className="alert-threshold">
-
-                    <span>Threshold</span>
-
-                    <strong>
-                      {alert.threshold_kw ?? 0} kW
-                    </strong>
-
-                  </div>
-
-
-                  <div className="alert-status">
-
-                    <span
-                      className={
-                        resolved
-                          ? "resolved-badge"
-                          : "active-badge"
-                      }
-                    >
-                      ● {resolved ? "Resolved" : "Active"}
-                    </span>
-
-                  </div>
-
-                </div>
-              );
-            })}
-
-          </div>
-
-        )}
+            </div>
+          )}
 
       </div>
 

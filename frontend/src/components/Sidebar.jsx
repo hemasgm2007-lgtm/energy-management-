@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 import {
   LayoutDashboard,
@@ -11,11 +11,26 @@ import {
   Lightbulb,
   FileText,
   Settings,
+  LogOut,
 } from "lucide-react";
 
 import "../styles/Sidebar.css";
 
 function Sidebar() {
+
+  const navigate = useNavigate();
+
+  // LOGOUT FUNCTION
+  const handleLogout = () => {
+    // Remove login/session data
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("isLoggedIn");
+
+    // Go back to Login page
+    navigate("/login");
+  };
+
   return (
     <aside className="sidebar">
 
@@ -206,6 +221,16 @@ function Sidebar() {
           </div>
 
         </div>
+
+
+        {/* LOGOUT */}
+        <button
+          className="sidebar-logout"
+          onClick={handleLogout}
+        >
+          <LogOut size={21} />
+          <span>Logout</span>
+        </button>
 
       </div>
 

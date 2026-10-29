@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import {
   Zap,
   Mail,
@@ -40,10 +41,18 @@ function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    /* =========================
+       FORGOT PASSWORD
+    ========================= */
+
     if (forgotPassword) {
       alert("Password reset link has been sent to your email.");
       return;
     }
+
+    /* =========================
+       SIGN UP
+    ========================= */
 
     if (mode === "signup") {
       if (formData.password !== formData.confirmPassword) {
@@ -51,10 +60,93 @@ function Login() {
         return;
       }
 
+      if (!formData.name.trim()) {
+        alert("Please enter your full name.");
+        return;
+      }
+
+      // Save registered user
+      const user = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+      };
+
+      localStorage.setItem("user", JSON.stringify(user));
+
       alert("Account created successfully.");
+
+      // Switch to Sign In
       setMode("signin");
+
+      // Clear password fields
+      setFormData({
+        ...formData,
+        password: "",
+        confirmPassword: "",
+      });
+
       return;
     }
+
+    /* =========================
+       SIGN IN
+    ========================= */
+
+    const savedUser = localStorage.getItem("user");
+
+    if (savedUser) {
+      const user = JSON.parse(savedUser);
+
+      // Save login status
+      localStorage.setItem("isLoggedIn", "true");
+
+      // Make sure email is updated if the user signs in
+      // with the same registered account
+      const updatedUser = {
+        ...user,
+        email: formData.email.trim(),
+      };
+
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      // Go to dashboard
+      navigate("/dashboard");
+
+      return;
+    }
+
+    /*
+      If no user has been registered yet,
+      create a display name from the email.
+
+      Example:
+      hemasgm2007@gmail.com
+      ↓
+      Hemasgm
+    */
+
+    const emailName = formData.email
+      .split("@")[0]
+      .replace(/[0-9]/g, "")
+      .replace(/[._-]/g, " ");
+
+    const displayName = emailName
+      .split(" ")
+      .filter(Boolean)
+      .map(
+        (word) =>
+          word.charAt(0).toUpperCase() + word.slice(1)
+      )
+      .join(" ");
+
+    const user = {
+      name: displayName || "User",
+      email: formData.email.trim(),
+    };
+
+    localStorage.setItem("user", JSON.stringify(user));
+
+    localStorage.setItem("isLoggedIn", "true");
 
     navigate("/dashboard");
   };
@@ -84,7 +176,6 @@ function Login() {
 
         </div>
 
-
         {/* FORGOT CARD */}
 
         <div className="login-card forgot-card">
@@ -99,7 +190,6 @@ function Login() {
             Enter your registered email address and
             we'll send you a password reset link.
           </p>
-
 
           <form onSubmit={handleSubmit}>
 
@@ -124,17 +214,15 @@ function Login() {
 
             </div>
 
-
-            <button className="login-submit">
-
+            <button
+              type="submit"
+              className="login-submit"
+            >
               Send Reset Link
-
               <ArrowRight size={17} />
-
             </button>
 
           </form>
-
 
           <button
             className="back-login"
@@ -149,20 +237,18 @@ function Login() {
     );
   }
 
+  /* =====================================================
+     MAIN LOGIN PAGE
+     ===================================================== */
 
   return (
     <div className="login-page">
 
-      {/* =================================================
-          BACKGROUND
-          ================================================= */}
+      {/* BACKGROUND */}
 
       <div className="login-background-overlay"></div>
 
-
-      {/* =================================================
-          BRAND
-          ================================================= */}
+      {/* BRAND */}
 
       <div className="login-brand">
 
@@ -177,10 +263,7 @@ function Login() {
 
       </div>
 
-
-      {/* =================================================
-          LEFT CONTENT
-          ================================================= */}
+      {/* LEFT CONTENT */}
 
       <div className="login-intro">
 
@@ -203,7 +286,6 @@ function Login() {
           with intelligent energy insights.
         </p>
 
-
         <div className="intro-features">
 
           <div>
@@ -225,10 +307,7 @@ function Login() {
 
       </div>
 
-
-      {/* =================================================
-          LOGIN CARD
-          ================================================= */}
+      {/* LOGIN CARD */}
 
       <div className="login-card">
 
@@ -248,14 +327,12 @@ function Login() {
             : "Create your Smart Energy monitoring account"}
         </p>
 
-
-        {/* =================================================
-            SIGN IN / SIGN UP
-            ================================================= */}
+        {/* SIGN IN / SIGN UP */}
 
         <div className="auth-tabs">
 
           <button
+            type="button"
             className={mode === "signin" ? "active" : ""}
             onClick={() => setMode("signin")}
           >
@@ -263,6 +340,7 @@ function Login() {
           </button>
 
           <button
+            type="button"
             className={mode === "signup" ? "active" : ""}
             onClick={() => setMode("signup")}
           >
@@ -271,12 +349,11 @@ function Login() {
 
         </div>
 
-
-        {/* =================================================
-            FORM
-            ================================================= */}
+        {/* FORM */}
 
         <form onSubmit={handleSubmit}>
+
+          {/* FULL NAME */}
 
           {mode === "signup" && (
             <div className="login-field">
@@ -299,6 +376,7 @@ function Login() {
             </div>
           )}
 
+          {/* EMAIL */}
 
           <div className="login-field">
 
@@ -321,6 +399,7 @@ function Login() {
 
           </div>
 
+          {/* PASSWORD */}
 
           <div className="login-field">
 
@@ -357,6 +436,7 @@ function Login() {
 
           </div>
 
+          {/* CONFIRM PASSWORD */}
 
           {mode === "signup" && (
             <div className="login-field">
@@ -381,7 +461,6 @@ function Login() {
             </div>
           )}
 
-
           {/* REMEMBER / FORGOT */}
 
           {mode === "signin" && (
@@ -400,7 +479,6 @@ function Login() {
 
               </label>
 
-
               <button
                 type="button"
                 className="forgot-link"
@@ -413,7 +491,6 @@ function Login() {
 
             </div>
           )}
-
 
           {/* SUBMIT */}
 
@@ -432,45 +509,35 @@ function Login() {
 
         </form>
 
-
-        {/* =================================================
-            SOCIAL LOGIN
-            ================================================= */}
+        {/* SOCIAL LOGIN */}
 
         {mode === "signin" && (
           <>
-
             <div className="login-divider">
               <span>or</span>
             </div>
 
-
-            <button className="social-login">
-
+            <button
+              type="button"
+              className="social-login"
+            >
               <strong>G</strong>
-
               Continue with Google
-
             </button>
 
-
-            <button className="social-login">
-
+            <button
+              type="button"
+              className="social-login"
+            >
               <strong className="microsoft-icon">
                 ▦
               </strong>
-
               Continue with Microsoft
-
             </button>
-
           </>
         )}
 
-
-        {/* =================================================
-            BOTTOM
-            ================================================= */}
+        {/* BOTTOM */}
 
         <div className="login-bottom">
 
@@ -479,6 +546,7 @@ function Login() {
               Don't have an account?
 
               <button
+                type="button"
                 onClick={() => setMode("signup")}
               >
                 Sign Up
@@ -489,6 +557,7 @@ function Login() {
               Already have an account?
 
               <button
+                type="button"
                 onClick={() => setMode("signin")}
               >
                 Sign In
@@ -500,10 +569,7 @@ function Login() {
 
       </div>
 
-
-      {/* =================================================
-          SECURITY
-          ================================================= */}
+      {/* SECURITY */}
 
       <div className="login-security">
 

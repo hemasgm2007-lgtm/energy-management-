@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   BrainCircuit,
   TrendingUp,
@@ -6,14 +7,29 @@ import {
   Zap,
   RefreshCw,
   Activity,
+  Flame,
+  Sun,
+  Wind,
+  AlertTriangle,
 } from "lucide-react";
+
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 
 import "../styles/Predictions.css";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "http://10.74.4.75:8000";
 
 function Predictions() {
-  const [readings, setReadings] = useState([]);
+  const [predictionData, setPredictionData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -22,22 +38,23 @@ function Predictions() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(`${API_URL}/energy/`);
+      const response = await fetch(`${API_URL}/predictions/`);
 
       if (!response.ok) {
-        throw new Error("Unable to fetch energy readings");
+        throw new Error("Unable to fetch prediction data");
       }
 
       const result = await response.json();
 
-      const readingData = Array.isArray(result)
-        ? result
-        : result.data || [];
+      console.log("Prediction API response:", result);
 
-      setReadings(readingData);
+      setPredictionData(result);
     } catch (err) {
       console.error("Prediction data error:", err);
-      setError("Unable to connect to the FastAPI backend.");
+
+      setError(
+        "Unable to connect to the FastAPI prediction service."
+      );
     } finally {
       setLoading(false);
     }
@@ -48,144 +65,126 @@ function Predictions() {
   }, []);
 
   /*
-   * GET POWER FROM SIMULATED READINGS
+   * ================================
+   * PREPARE FORECAST CHART DATA
+   * ================================
    */
-  const getPower = (reading) => {
-    return Number(
-      reading?.power_kw ??
-      reading?.power ??
-      0
-    );
-  };
+
+  const forecastChartData =
+    predictionData?.electrical_demand?.map((item, index) => ({
+      hour: item.hour,
+
+      electrical:
+        Number(item.value) || 0,
+
+      heating:
+        Number(
+          predictionData?.heating_demand?.[index]?.value
+        ) || 0,
+
+      solar:
+        Number(
+          predictionData?.solar_generation?.[index]?.value
+        ) || 0,
+
+      wind:
+        Number(
+          predictionData?.wind_generation?.[index]?.value
+        ) || 0,
+    })) || [];
 
   /*
-   * GET ENERGY FROM SIMULATED READINGS
+   * ================================
+   * CURRENT / PEAK VALUES
+   * ================================
    */
-  const getEnergy = (reading) => {
-    return Number(
-      reading?.energy_kwh ??
-      reading?.energy ??
-      0
-    );
-  };
 
-  /*
-   * SORT READINGS BY TIME
-   */
-  const sortedReadings = [...readings].sort((a, b) => {
-    return (
-      new Date(a.timestamp || 0) -
-      new Date(b.timestamp || 0)
-    );
-  });
+  const electricalValues =
+    predictionData?.electrical_demand || [];
 
-  /*
-   * LAST AVAILABLE SIMULATED POWER
-   */
-  const latestReading =
-    sortedReadings.length > 0
-      ? sortedReadings[sortedReadings.length - 1]
+  const heatingValues =
+    predictionData?.heating_demand || [];
+
+  const solarValues =
+    predictionData?.solar_generation || [];
+
+  const windValues =
+    predictionData?.wind_generation || [];
+
+  const peakElectrical =
+    electricalValues.length > 0
+      ? electricalValues.reduce(
+          (max, item) =>
+            Number(item.value) > Number(max.value)
+              ? item
+              : max,
+          electricalValues[0]
+        )
       : null;
 
-  const currentPower = latestReading
-    ? getPower(latestReading)
-    : 0;
+  const peakHeating =
+    heatingValues.length > 0
+      ? heatingValues.reduce(
+          (max, item) =>
+            Number(item.value) > Number(max.value)
+              ? item
+              : max,
+          heatingValues[0]
+        )
+      : null;
 
-  /*
-   * USE LAST 5 READINGS FOR SIMPLE FORECAST
-   */
-  const recentReadings = sortedReadings.slice(-5);
-
-  const recentPowers = recentReadings
-    .map(getPower)
-    .filter((value) => value > 0);
-
-  /*
-   * CALCULATE AVERAGE POWER
-   */
-  const averagePower =
-    recentPowers.length > 0
-      ? recentPowers.reduce(
-          (sum, value) => sum + value,
-          0
-        ) / recentPowers.length
+  const firstElectrical =
+    electricalValues.length > 0
+      ? Number(electricalValues[0].value)
       : 0;
 
-  /*
-   * SIMPLE TREND CALCULATION
-   *
-   * If power is increasing, forecast slightly higher.
-   * If decreasing, forecast slightly lower.
-   */
-  let trend = 0;
+  const latestElectrical =
+    electricalValues.length > 0
+      ? Number(
+          electricalValues[electricalValues.length - 1].value
+        )
+      : 0;
 
-  if (recentPowers.length >= 2) {
-    const first =
-      recentPowers[0];
-
-    const last =
-      recentPowers[recentPowers.length - 1];
-
-    trend = last - first;
-  }
-
-  /*
-   * PREDICT NEXT POWER DEMAND
-   */
-  const predictedPower =
-    recentPowers.length > 0
+  const peakSolar =
+    solarValues.length > 0
       ? Math.max(
-          averagePower + trend * 0.25,
-          0
+          ...solarValues.map((item) =>
+            Number(item.value) || 0
+          )
+        )
+      : 0;
+
+  const peakWind =
+    windValues.length > 0
+      ? Math.max(
+          ...windValues.map((item) =>
+            Number(item.value) || 0
+          )
         )
       : 0;
 
   /*
-   * ESTIMATE NEXT-HOUR ENERGY
+   * ================================
+   * TREND
+   * ================================
    */
-  const predictedEnergy =
-    predictedPower > 0
-      ? predictedPower
-      : 0;
 
-  /*
-   * CURRENT TOTAL ENERGY
-   */
-  const totalEnergy = sortedReadings.reduce(
-    (sum, reading) =>
-      sum + getEnergy(reading),
-    0
-  );
-
-  /*
-   * CREATE FORECAST ROWS
-   */
-  const forecastRows = Array.from(
-    { length: 5 },
-    (_, index) => {
-
-      const futurePower =
-        predictedPower *
-        (1 + index * 0.02);
-
-      const futureTime = new Date(
-        Date.now() +
-          (index + 1) * 60 * 60 * 1000
-      );
-
-      return {
-        id: index,
-        time: futureTime,
-        power: futurePower,
-        energy: futurePower,
-      };
-    }
-  );
+  const electricalTrend =
+    firstElectrical > 0
+      ? (
+          ((latestElectrical - firstElectrical) /
+            firstElectrical) *
+          100
+        ).toFixed(1)
+      : "0.0";
 
   return (
     <div className="predictions-page">
 
-      {/* HEADER */}
+      {/* =================================
+          HEADER
+      ================================= */}
+
       <div className="predictions-header">
 
         <div className="prediction-title-row">
@@ -207,37 +206,71 @@ function Predictions() {
         <button
           className="prediction-refresh-button"
           onClick={fetchPredictions}
+          disabled={loading}
         >
-          <RefreshCw size={16} />
-          Refresh
+          <RefreshCw
+            size={16}
+            className={loading ? "refresh-spin" : ""}
+          />
+
+          {loading ? "Refreshing..." : "Refresh"}
         </button>
 
       </div>
 
 
-      {/* LOADING */}
+      {/* =================================
+          LOADING
+      ================================= */}
+
       {loading && (
         <div className="prediction-message">
-          Loading simulated energy data...
+          <BrainCircuit size={25} />
+
+          <span>
+            Loading AI prediction data...
+          </span>
         </div>
       )}
 
 
-      {/* ERROR */}
+      {/* =================================
+          ERROR
+      ================================= */}
+
       {!loading && error && (
         <div className="prediction-message error">
-          {error}
+
+          <AlertTriangle size={22} />
+
+          <span>{error}</span>
+
+          <button
+            onClick={fetchPredictions}
+            className="retry-button"
+          >
+            Try Again
+          </button>
+
         </div>
       )}
 
 
-      {!loading && !error && (
+      {/* =================================
+          MAIN CONTENT
+      ================================= */}
+
+      {!loading && !error && predictionData && (
         <>
 
-          {/* SUMMARY CARDS */}
+          {/* =================================
+              SUMMARY CARDS
+          ================================= */}
+
           <div className="prediction-stats">
 
-            {/* CURRENT POWER */}
+            {/* ELECTRICAL DEMAND */}
+
             <div className="prediction-stat-card">
 
               <div className="prediction-stat-icon blue">
@@ -245,67 +278,170 @@ function Predictions() {
               </div>
 
               <div>
-                <span>Current Power</span>
+
+                <span>
+                  Peak Electrical Demand
+                </span>
 
                 <strong>
-                  {currentPower.toFixed(2)}
+                  {peakElectrical
+                    ? Number(peakElectrical.value).toFixed(0)
+                    : "0"}
+
                   <small> kW</small>
                 </strong>
+
+                <em>
+                  Expected at{" "}
+                  {peakElectrical?.hour || "--"}
+                </em>
+
               </div>
 
             </div>
 
 
-            {/* PREDICTED POWER */}
-            <div className="prediction-stat-card">
+            {/* HEATING DEMAND */}
 
-              <div className="prediction-stat-icon purple">
-                <TrendingUp size={21} />
-              </div>
-
-              <div>
-                <span>Predicted Power</span>
-
-                <strong>
-                  {predictedPower.toFixed(2)}
-                  <small> kW</small>
-                </strong>
-              </div>
-
-            </div>
-
-
-            {/* PREDICTED ENERGY */}
-            <div className="prediction-stat-card">
-
-              <div className="prediction-stat-icon green">
-                <Zap size={21} />
-              </div>
-
-              <div>
-                <span>Predicted Energy</span>
-
-                <strong>
-                  {predictedEnergy.toFixed(2)}
-                  <small> kWh</small>
-                </strong>
-              </div>
-
-            </div>
-
-
-            {/* FORECAST HORIZON */}
             <div className="prediction-stat-card">
 
               <div className="prediction-stat-icon orange">
-                <Clock size={21} />
+                <Flame size={21} />
+              </div>
+
+              <div>
+
+                <span>
+                  Peak Heating Demand
+                </span>
+
+                <strong>
+                  {peakHeating
+                    ? Number(peakHeating.value).toFixed(0)
+                    : "0"}
+
+                  <small> kW</small>
+                </strong>
+
+                <em>
+                  Expected at{" "}
+                  {peakHeating?.hour || "--"}
+                </em>
+
+              </div>
+
+            </div>
+
+
+            {/* SOLAR */}
+
+            <div className="prediction-stat-card">
+
+              <div className="prediction-stat-icon yellow">
+                <Sun size={21} />
+              </div>
+
+              <div>
+
+                <span>
+                  Peak Solar Generation
+                </span>
+
+                <strong>
+                  {peakSolar.toFixed(0)}
+                  <small> kW</small>
+                </strong>
+
+                <em>
+                  Declines toward evening
+                </em>
+
+              </div>
+
+            </div>
+
+
+            {/* WIND */}
+
+            <div className="prediction-stat-card">
+
+              <div className="prediction-stat-icon cyan">
+                <Wind size={21} />
+              </div>
+
+              <div>
+
+                <span>
+                  Peak Wind Generation
+                </span>
+
+                <strong>
+                  {peakWind.toFixed(0)}
+                  <small> kW</small>
+                </strong>
+
+                <em>
+                  Available through forecast
+                </em>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          {/* =================================
+              FORECAST INFORMATION
+          ================================= */}
+
+          <div className="forecast-info-row">
+
+            <div className="forecast-info-card">
+
+              <div className="forecast-info-icon">
+                <Clock size={19} />
               </div>
 
               <div>
                 <span>Forecast Horizon</span>
 
                 <strong>
-                  5 <small>Hours</small>
+                  {predictionData.forecast_horizon || "6 hours"}
+                </strong>
+              </div>
+
+            </div>
+
+
+            <div className="forecast-info-card peak">
+
+              <div className="forecast-info-icon">
+                <TrendingUp size={19} />
+              </div>
+
+              <div>
+                <span>Peak Demand Period</span>
+
+                <strong>
+                  {predictionData.peak_period || "--"}
+                </strong>
+              </div>
+
+            </div>
+
+
+            <div className="forecast-info-card">
+
+              <div className="forecast-info-icon">
+                <Zap size={19} />
+              </div>
+
+              <div>
+                <span>Forecast Points</span>
+
+                <strong>
+                  {electricalValues.length}
                 </strong>
               </div>
 
@@ -314,156 +450,276 @@ function Predictions() {
           </div>
 
 
-          {/* FORECAST PANEL */}
+          {/* =================================
+              MAIN FORECAST CHART
+          ================================= */}
+
           <div className="prediction-panel">
 
             <div className="prediction-panel-header">
 
               <div>
+
                 <h2>
                   AI Energy Forecast
                 </h2>
 
                 <p>
-                  Forecast generated from simulated
-                  historical energy readings
+                  Predicted station energy requirements
+                  for the upcoming period
                 </p>
+
               </div>
 
               <div className="ai-badge">
+
                 <BrainCircuit size={16} />
+
                 AI Forecast
+
               </div>
 
             </div>
 
 
-            {recentPowers.length === 0 ? (
+            <div className="prediction-chart">
 
-              <div className="prediction-empty">
+              <ResponsiveContainer
+                width="100%"
+                height={390}
+              >
 
-                <BrainCircuit size={42} />
+                <LineChart
+                  data={forecastChartData}
+                  margin={{
+                    top: 20,
+                    right: 25,
+                    left: 5,
+                    bottom: 10,
+                  }}
+                >
 
-                <h3>
-                  No simulated energy data
-                </h3>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#edf1f5"
+                  />
 
-                <p>
-                  Add energy readings to generate
-                  the demand forecast.
-                </p>
+                  <XAxis
+                    dataKey="hour"
+                    tick={{
+                      fill: "#8194ad",
+                      fontSize: 11,
+                    }}
+                    axisLine={{
+                      stroke: "#dfe7ef",
+                    }}
+                    tickLine={false}
+                  />
 
-              </div>
+                  <YAxis
+                    tick={{
+                      fill: "#8194ad",
+                      fontSize: 11,
+                    }}
+                    axisLine={false}
+                    tickLine={false}
+                    unit=" kW"
+                  />
 
-            ) : (
+                  <Tooltip
+                    contentStyle={{
+                      background: "#ffffff",
+                      border: "1px solid #e1e8f0",
+                      borderRadius: "10px",
+                      boxShadow:
+                        "0 6px 20px rgba(25,55,90,0.08)",
+                    }}
+                  />
 
-              <div className="prediction-list">
+                  <Legend />
 
-                {forecastRows.map((prediction) => (
+                  <Line
+                    type="monotone"
+                    dataKey="electrical"
+                    name="Electrical Demand"
+                    stroke="#1677ff"
+                    strokeWidth={3}
+                    dot={{
+                      r: 4,
+                    }}
+                    activeDot={{
+                      r: 6,
+                    }}
+                  />
 
-                  <div
-                    className="prediction-row"
-                    key={prediction.id}
-                  >
+                  <Line
+                    type="monotone"
+                    dataKey="heating"
+                    name="Heating Demand"
+                    stroke="#ed8b27"
+                    strokeWidth={2}
+                    dot={{
+                      r: 3,
+                    }}
+                  />
 
-                    <div className="prediction-time">
+                  <Line
+                    type="monotone"
+                    dataKey="solar"
+                    name="Solar Generation"
+                    stroke="#e2a400"
+                    strokeWidth={2}
+                    dot={{
+                      r: 3,
+                    }}
+                  />
 
-                      <Clock size={17} />
+                  <Line
+                    type="monotone"
+                    dataKey="wind"
+                    name="Wind Generation"
+                    stroke="#17a6b8"
+                    strokeWidth={2}
+                    dot={{
+                      r: 3,
+                    }}
+                  />
 
-                      <span>
-                        {prediction.time.toLocaleTimeString(
-                          [],
-                          {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
-                      </span>
+                </LineChart>
 
-                    </div>
+              </ResponsiveContainer>
 
-
-                    <div className="prediction-value">
-
-                      <span>
-                        Power Demand
-                      </span>
-
-                      <strong>
-                        {prediction.power.toFixed(2)}
-                        {" "}kW
-                      </strong>
-
-                    </div>
-
-
-                    <div className="prediction-value">
-
-                      <span>
-                        Energy
-                      </span>
-
-                      <strong>
-                        {prediction.energy.toFixed(2)}
-                        {" "}kWh
-                      </strong>
-
-                    </div>
-
-
-                    <div className="prediction-confidence">
-
-                      <span>
-                        Forecast
-                      </span>
-
-                      <div className="confidence-bar">
-
-                        <div
-                          className="confidence-fill"
-                          style={{
-                            width: "85%",
-                          }}
-                        />
-
-                      </div>
-
-                      <small>
-                        85% confidence
-                      </small>
-
-                    </div>
-
-                  </div>
-
-                ))}
-
-              </div>
-
-            )}
+            </div>
 
           </div>
 
 
-          {/* DATA SOURCE */}
-          <div className="prediction-insight">
+          {/* =================================
+              FORECAST TABLE
+          ================================= */}
+
+          <div className="prediction-panel">
+
+            <div className="prediction-panel-header">
+
+              <div>
+
+                <h2>
+                  Hourly Prediction Details
+                </h2>
+
+                <p>
+                  Predicted energy demand and renewable
+                  generation for each forecast hour
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div className="prediction-table-wrapper">
+
+              <table className="prediction-table">
+
+                <thead>
+
+                  <tr>
+                    <th>Hour</th>
+                    <th>Electrical Demand</th>
+                    <th>Heating Demand</th>
+                    <th>Solar Generation</th>
+                    <th>Wind Generation</th>
+                  </tr>
+
+                </thead>
+
+                <tbody>
+
+                  {forecastChartData.map(
+                    (prediction, index) => (
+
+                      <tr key={index}>
+
+                        <td>
+                          <div className="table-hour">
+                            <Clock size={15} />
+                            {prediction.hour}
+                          </div>
+                        </td>
+
+                        <td>
+                          <strong className="electrical-value">
+                            {prediction.electrical.toFixed(0)}
+                            {" "}kW
+                          </strong>
+                        </td>
+
+                        <td>
+                          {prediction.heating.toFixed(0)}
+                          {" "}kW
+                        </td>
+
+                        <td>
+                          <span className="solar-value">
+                            {prediction.solar.toFixed(0)}
+                            {" "}kW
+                          </span>
+                        </td>
+
+                        <td>
+                          <span className="wind-value">
+                            {prediction.wind.toFixed(0)}
+                            {" "}kW
+                          </span>
+                        </td>
+
+                      </tr>
+
+                    )
+                  )}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
+
+
+          {/* =================================
+              PEAK PERIOD INSIGHT
+          ================================= */}
+
+          <div className="prediction-insight peak-insight">
 
             <div className="insight-icon">
-              <Activity size={22} />
+              <AlertTriangle size={22} />
             </div>
 
             <div>
 
               <h3>
-                Prediction Data Source
+                Peak Demand Period
               </h3>
 
               <p>
-                The forecast uses the simulated energy
-                readings stored in the system. Currently
-                {readings.length} readings are available,
-                with a total recorded energy of{" "}
-                {totalEnergy.toFixed(2)} kWh.
+                The prediction model identifies{" "}
+                <strong>
+                  {predictionData.peak_period}
+                </strong>{" "}
+                as the expected high-demand period.
+                Electrical demand reaches approximately{" "}
+                <strong>
+                  {peakElectrical
+                    ? Number(peakElectrical.value).toFixed(0)
+                    : "0"}{" "}
+                  kW
+                </strong>
+                . The energy management system can use
+                this prediction to prepare available
+                generation sources in advance.
               </p>
 
             </div>
@@ -471,7 +727,10 @@ function Predictions() {
           </div>
 
 
-          {/* INSIGHT */}
+          {/* =================================
+              AI INSIGHT
+          ================================= */}
+
           <div className="prediction-insight">
 
             <div className="insight-icon">
@@ -481,14 +740,22 @@ function Predictions() {
             <div>
 
               <h3>
-                Prediction Insight
+                AI Prediction Insight
               </h3>
 
               <p>
-                Based on recent simulated power demand,
-                the system estimates the upcoming energy
-                requirement so that the station can prepare
-                energy sources in advance.
+                The forecast indicates that electrical
+                demand increases toward the evening,
+                reaching its highest predicted value at{" "}
+                <strong>
+                  {peakElectrical?.hour || "--"}
+                </strong>
+                . Solar generation decreases as the
+                evening progresses, while wind generation
+                remains available throughout the forecast
+                period. These predictions can support
+                proactive energy-source scheduling at the
+                polar research station.
               </p>
 
             </div>

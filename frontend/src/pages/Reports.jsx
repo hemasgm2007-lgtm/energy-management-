@@ -112,31 +112,305 @@ function Reports() {
   };
 
   // =========================================================
+  // REPORT TYPE BASED CONTENT
+  // =========================================================
+
+  const getReportContent = () => {
+    switch (reportType) {
+      // -----------------------------------------------------
+      // ENERGY CONSUMPTION
+      // -----------------------------------------------------
+      case "Energy Consumption":
+        return {
+          stats: [
+            {
+              label: "Total Energy",
+              value: `${reportData.totalEnergy} kWh`,
+              small: period,
+              icon: <Zap size={21} />,
+              iconClass: "blue",
+            },
+            {
+              label: "Average Daily Energy",
+              value: `${reportData.averageDailyEnergy} kWh`,
+              small: "Daily average",
+              icon: <TrendingUp size={21} />,
+              iconClass: "orange",
+            },
+            {
+              label: "Estimated Cost",
+              value: `₹${reportData.estimatedCost.toLocaleString(
+                "en-IN"
+              )}`,
+              small: "@ ₹8.50 / kWh",
+              icon: <IndianRupee size={21} />,
+              iconClass: "green",
+            },
+            {
+              label: "Efficiency Improvement",
+              value: `${reportData.efficiency}%`,
+              small: "Compared with baseline",
+              icon: <TrendingUp size={21} />,
+              iconClass: "purple",
+            },
+          ],
+
+          machineTitle: "Machine-wise Energy Consumption",
+          machineDescription:
+            "Energy usage distribution across monitored machines",
+
+          dailyTitle: "Daily Energy Consumption",
+          dailyDescription:
+            "Energy consumption and estimated cost by day",
+        };
+
+      // -----------------------------------------------------
+      // MACHINE PERFORMANCE
+      // -----------------------------------------------------
+      case "Machine Performance":
+        return {
+          stats: [
+            {
+              label: "Total Machines",
+              value: `${reportData.machines.length}`,
+              small: "Monitored machines",
+              icon: <Factory size={21} />,
+              iconClass: "blue",
+            },
+            {
+              label: "Highest Energy Machine",
+              value: "CNC Machine 01",
+              small: "124.5 kWh consumption",
+              icon: <Zap size={21} />,
+              iconClass: "orange",
+            },
+            {
+              label: "Peak Machine Power",
+              value: "15.5 kW",
+              small: "CNC Machine 01",
+              icon: <TrendingUp size={21} />,
+              iconClass: "green",
+            },
+            {
+              label: "Average Efficiency",
+              value: `${reportData.efficiency}%`,
+              small: "Performance improvement",
+              icon: <TrendingUp size={21} />,
+              iconClass: "purple",
+            },
+          ],
+
+          machineTitle: "Machine Performance",
+          machineDescription:
+            "Performance and energy usage across monitored machines",
+
+          dailyTitle: "Daily Machine Performance",
+          dailyDescription:
+            "Daily energy and peak power measurements",
+        };
+
+      // -----------------------------------------------------
+      // COST ANALYSIS
+      // -----------------------------------------------------
+      case "Cost Analysis":
+        return {
+          stats: [
+            {
+              label: "Total Energy Cost",
+              value: `₹${reportData.estimatedCost.toLocaleString(
+                "en-IN"
+              )}`,
+              small: period,
+              icon: <IndianRupee size={21} />,
+              iconClass: "green",
+            },
+            {
+              label: "Average Daily Cost",
+              value: `₹${(
+                reportData.estimatedCost / reportData.daily.length
+              ).toFixed(2)}`,
+              small: "Daily average",
+              icon: <TrendingUp size={21} />,
+              iconClass: "orange",
+            },
+            {
+              label: "Energy Rate",
+              value: "₹8.50 / kWh",
+              small: "Current tariff",
+              icon: <Zap size={21} />,
+              iconClass: "blue",
+            },
+            {
+              label: "Potential Saving",
+              value: `${reportData.energySaving}%`,
+              small: "Optimization potential",
+              icon: <TrendingUp size={21} />,
+              iconClass: "purple",
+            },
+          ],
+
+          machineTitle: "Machine-wise Energy Cost",
+          machineDescription:
+            "Estimated energy cost contribution by machine",
+
+          dailyTitle: "Daily Cost Analysis",
+          dailyDescription:
+            "Daily energy cost and consumption breakdown",
+        };
+
+      // -----------------------------------------------------
+      // ENERGY EFFICIENCY
+      // -----------------------------------------------------
+      case "Energy Efficiency":
+        return {
+          stats: [
+            {
+              label: "Efficiency Improvement",
+              value: `${reportData.efficiency}%`,
+              small: "Compared with baseline",
+              icon: <TrendingUp size={21} />,
+              iconClass: "purple",
+            },
+            {
+              label: "Energy Saving",
+              value: `${reportData.energySaving}%`,
+              small: "Optimization potential",
+              icon: <Zap size={21} />,
+              iconClass: "blue",
+            },
+            {
+              label: "Energy Consumed",
+              value: `${reportData.totalEnergy} kWh`,
+              small: period,
+              icon: <Factory size={21} />,
+              iconClass: "orange",
+            },
+            {
+              label: "Estimated Cost",
+              value: `₹${reportData.estimatedCost.toLocaleString(
+                "en-IN"
+              )}`,
+              small: "Current period",
+              icon: <IndianRupee size={21} />,
+              iconClass: "green",
+            },
+          ],
+
+          machineTitle: "Machine-wise Efficiency",
+          machineDescription:
+            "Energy efficiency and utilization across monitored machines",
+
+          dailyTitle: "Daily Efficiency Analysis",
+          dailyDescription:
+            "Daily energy consumption and efficiency indicators",
+        };
+
+      default:
+        return {
+          stats: [],
+          machineTitle: "Machine-wise Energy Consumption",
+          machineDescription:
+            "Energy usage distribution across monitored machines",
+          dailyTitle: "Daily Energy Consumption",
+          dailyDescription:
+            "Energy consumption and estimated cost by day",
+        };
+    }
+  };
+
+  const reportContent = getReportContent();
+
+  // =========================================================
   // CSV DOWNLOAD
   // =========================================================
 
   const downloadCSV = () => {
-    const rows = [
-      [
-        "Machine",
-        "Energy Consumption (kWh)",
-        "Power (kW)",
-        "Consumption (%)",
-        "Status",
-      ],
-      ...reportData.machines.map((machine) => [
-        machine.machine,
-        machine.energy,
-        machine.power,
-        machine.percentage,
-        machine.status,
-      ]),
-    ];
+    let rows = [];
+
+    // ENERGY CONSUMPTION
+    if (reportType === "Energy Consumption") {
+      rows = [
+        [
+          "Machine",
+          "Energy Consumption (kWh)",
+          "Power (kW)",
+          "Consumption (%)",
+          "Status",
+        ],
+        ...reportData.machines.map((machine) => [
+          machine.machine,
+          machine.energy,
+          machine.power,
+          machine.percentage,
+          machine.status,
+        ]),
+      ];
+    }
+
+    // MACHINE PERFORMANCE
+    else if (reportType === "Machine Performance") {
+      rows = [
+        [
+          "Machine",
+          "Energy (kWh)",
+          "Power (kW)",
+          "Usage Share (%)",
+          "Status",
+        ],
+        ...reportData.machines.map((machine) => [
+          machine.machine,
+          machine.energy,
+          machine.power,
+          machine.percentage,
+          machine.status,
+        ]),
+      ];
+    }
+
+    // COST ANALYSIS
+    else if (reportType === "Cost Analysis") {
+      rows = [
+        [
+          "Machine",
+          "Energy (kWh)",
+          "Estimated Cost (Rs.)",
+          "Usage Share (%)",
+        ],
+        ...reportData.machines.map((machine) => [
+          machine.machine,
+          machine.energy,
+          (machine.energy * 8.5).toFixed(2),
+          machine.percentage,
+        ]),
+      ];
+    }
+
+    // ENERGY EFFICIENCY
+    else if (reportType === "Energy Efficiency") {
+      rows = [
+        [
+          "Machine",
+          "Energy (kWh)",
+          "Power (kW)",
+          "Efficiency Indicator (%)",
+          "Status",
+        ],
+        ...reportData.machines.map((machine) => [
+          machine.machine,
+          machine.energy,
+          machine.power,
+          (100 - machine.percentage / 2).toFixed(1),
+          machine.status,
+        ]),
+      ];
+    }
 
     const csvContent = rows
       .map((row) =>
         row
-          .map((value) => `"${String(value).replace(/"/g, '""')}"`)
+          .map((value) =>
+            `"${String(value).replace(/"/g, '""')}"`
+          )
           .join(",")
       )
       .join("\n");
@@ -150,7 +424,10 @@ function Reports() {
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = "smart-energy-report.csv";
+
+    link.download = `${reportType
+      .toLowerCase()
+      .replace(/\s+/g, "-")}-report.csv`;
 
     document.body.appendChild(link);
 
@@ -171,7 +448,12 @@ function Reports() {
     // TITLE
     doc.setFontSize(20);
     doc.setTextColor(9, 36, 72);
-    doc.text("Smart Energy Monitoring Report", 14, 20);
+
+    doc.text(
+      "Smart Energy Monitoring Report",
+      14,
+      20
+    );
 
     // SUBTITLE
     doc.setFontSize(10);
@@ -192,28 +474,105 @@ function Reports() {
     // SUMMARY
     doc.setFontSize(13);
     doc.setTextColor(9, 36, 72);
-    doc.text("Energy Summary", 14, 46);
 
-    autoTable(doc, {
-      startY: 51,
+    doc.text(
+      `${reportType} Summary`,
+      14,
+      46
+    );
 
-      head: [
+    let summaryHead = [];
+    let summaryBody = [];
+
+    if (reportType === "Energy Consumption") {
+      summaryHead = [
         [
           "Total Energy",
           "Current Power",
           "Estimated Cost",
           "Energy Saving",
         ],
-      ],
+      ];
 
-      body: [
+      summaryBody = [
         [
           `${reportData.totalEnergy} kWh`,
           `${reportData.totalPower} kW`,
           `Rs. ${reportData.estimatedCost.toFixed(2)}`,
           `${reportData.energySaving}%`,
         ],
-      ],
+      ];
+    }
+
+    else if (reportType === "Machine Performance") {
+      summaryHead = [
+        [
+          "Total Machines",
+          "Highest Energy",
+          "Peak Power",
+          "Efficiency",
+        ],
+      ];
+
+      summaryBody = [
+        [
+          reportData.machines.length,
+          "CNC Machine 01",
+          "15.5 kW",
+          `${reportData.efficiency}%`,
+        ],
+      ];
+    }
+
+    else if (reportType === "Cost Analysis") {
+      summaryHead = [
+        [
+          "Total Cost",
+          "Average Daily Cost",
+          "Energy Rate",
+          "Potential Saving",
+        ],
+      ];
+
+      summaryBody = [
+        [
+          `Rs. ${reportData.estimatedCost.toFixed(2)}`,
+          `Rs. ${(
+            reportData.estimatedCost /
+            reportData.daily.length
+          ).toFixed(2)}`,
+          "Rs. 8.50 / kWh",
+          `${reportData.energySaving}%`,
+        ],
+      ];
+    }
+
+    else if (reportType === "Energy Efficiency") {
+      summaryHead = [
+        [
+          "Efficiency Improvement",
+          "Energy Saving",
+          "Total Energy",
+          "Estimated Cost",
+        ],
+      ];
+
+      summaryBody = [
+        [
+          `${reportData.efficiency}%`,
+          `${reportData.energySaving}%`,
+          `${reportData.totalEnergy} kWh`,
+          `Rs. ${reportData.estimatedCost.toFixed(2)}`,
+        ],
+      ];
+    }
+
+    autoTable(doc, {
+      startY: 51,
+
+      head: summaryHead,
+
+      body: summaryBody,
 
       theme: "grid",
 
@@ -235,15 +594,58 @@ function Reports() {
     doc.setTextColor(9, 36, 72);
 
     doc.text(
-      "Machine-wise Energy Consumption",
+      reportContent.machineTitle,
       14,
       machineStartY
     );
 
-    autoTable(doc, {
-      startY: machineStartY + 5,
+    let machineHead = [];
+    let machineBody = [];
 
-      head: [
+    if (reportType === "Cost Analysis") {
+      machineHead = [
+        [
+          "Machine",
+          "Energy (kWh)",
+          "Cost (Rs.)",
+          "Share",
+        ],
+      ];
+
+      machineBody = reportData.machines.map(
+        (machine) => [
+          machine.machine,
+          machine.energy,
+          (machine.energy * 8.5).toFixed(2),
+          `${machine.percentage}%`,
+        ]
+      );
+    }
+
+    else if (reportType === "Energy Efficiency") {
+      machineHead = [
+        [
+          "Machine",
+          "Energy (kWh)",
+          "Power (kW)",
+          "Efficiency",
+          "Status",
+        ],
+      ];
+
+      machineBody = reportData.machines.map(
+        (machine) => [
+          machine.machine,
+          machine.energy,
+          machine.power,
+          `${(100 - machine.percentage / 2).toFixed(1)}%`,
+          machine.status,
+        ]
+      );
+    }
+
+    else {
+      machineHead = [
         [
           "Machine",
           "Energy (kWh)",
@@ -251,15 +653,25 @@ function Reports() {
           "Share",
           "Status",
         ],
-      ],
+      ];
 
-      body: reportData.machines.map((machine) => [
-        machine.machine,
-        machine.energy,
-        machine.power,
-        `${machine.percentage}%`,
-        machine.status,
-      ]),
+      machineBody = reportData.machines.map(
+        (machine) => [
+          machine.machine,
+          machine.energy,
+          machine.power,
+          `${machine.percentage}%`,
+          machine.status,
+        ]
+      );
+    }
+
+    autoTable(doc, {
+      startY: machineStartY + 5,
+
+      head: machineHead,
+
+      body: machineBody,
 
       theme: "striped",
 
@@ -281,29 +693,77 @@ function Reports() {
     doc.setTextColor(9, 36, 72);
 
     doc.text(
-      "Daily Energy Consumption",
+      reportContent.dailyTitle,
       14,
       dailyStartY
     );
 
-    autoTable(doc, {
-      startY: dailyStartY + 5,
+    let dailyHead = [];
+    let dailyBody = [];
 
-      head: [
+    if (reportType === "Cost Analysis") {
+      dailyHead = [
         [
           "Date",
           "Energy (kWh)",
           "Power (kW)",
           "Cost (Rs.)",
         ],
-      ],
+      ];
 
-      body: reportData.daily.map((day) => [
+      dailyBody = reportData.daily.map((day) => [
         day.date,
         day.energy,
         day.power,
         day.cost.toFixed(2),
-      ]),
+      ]);
+    }
+
+    else if (reportType === "Energy Efficiency") {
+      dailyHead = [
+        [
+          "Date",
+          "Energy (kWh)",
+          "Power (kW)",
+          "Efficiency",
+        ],
+      ];
+
+      dailyBody = reportData.daily.map((day) => [
+        day.date,
+        day.energy,
+        day.power,
+        `${(
+          100 -
+          (day.energy / reportData.totalEnergy) * 20
+        ).toFixed(1)}%`,
+      ]);
+    }
+
+    else {
+      dailyHead = [
+        [
+          "Date",
+          "Energy (kWh)",
+          "Power (kW)",
+          "Cost (Rs.)",
+        ],
+      ];
+
+      dailyBody = reportData.daily.map((day) => [
+        day.date,
+        day.energy,
+        day.power,
+        day.cost.toFixed(2),
+      ]);
+    }
+
+    autoTable(doc, {
+      startY: dailyStartY + 5,
+
+      head: dailyHead,
+
+      body: dailyBody,
 
       theme: "grid",
 
@@ -330,7 +790,11 @@ function Reports() {
       pageHeight - 10
     );
 
-    doc.save("smart-energy-report.pdf");
+    doc.save(
+      `${reportType
+        .toLowerCase()
+        .replace(/\s+/g, "-")}-report.pdf`
+    );
   };
 
   return (
@@ -440,93 +904,44 @@ function Reports() {
 
       <div className="report-stats">
 
-        <div className="report-stat-card">
+        {reportContent.stats.map((stat, index) => (
 
-          <div className="report-stat-icon blue">
-            <Zap size={21} />
+          <div
+            className="report-stat-card"
+            key={index}
+          >
+
+            <div
+              className={`report-stat-icon ${stat.iconClass}`}
+            >
+              {stat.icon}
+            </div>
+
+            <div>
+
+              <span>
+                {stat.label}
+              </span>
+
+              <strong>
+                {stat.value}
+              </strong>
+
+              <small>
+                {stat.small}
+              </small>
+
+            </div>
+
           </div>
 
-          <div>
-            <span>Total Energy</span>
-            <strong>
-              {reportData.totalEnergy} kWh
-            </strong>
-
-            <small>
-              Last 7 days
-            </small>
-          </div>
-
-        </div>
-
-
-        <div className="report-stat-card">
-
-          <div className="report-stat-icon orange">
-            <TrendingUp size={21} />
-          </div>
-
-          <div>
-            <span>Average Daily Energy</span>
-
-            <strong>
-              {reportData.averageDailyEnergy} kWh
-            </strong>
-
-            <small>
-              Daily average
-            </small>
-          </div>
-
-        </div>
-
-
-        <div className="report-stat-card">
-
-          <div className="report-stat-icon green">
-            <IndianRupee size={21} />
-          </div>
-
-          <div>
-            <span>Estimated Cost</span>
-
-            <strong>
-              ₹{reportData.estimatedCost.toLocaleString("en-IN")}
-            </strong>
-
-            <small>
-              @ ₹8.50 / kWh
-            </small>
-          </div>
-
-        </div>
-
-
-        <div className="report-stat-card">
-
-          <div className="report-stat-icon purple">
-            <TrendingUp size={21} />
-          </div>
-
-          <div>
-            <span>Efficiency Improvement</span>
-
-            <strong>
-              {reportData.efficiency}%
-            </strong>
-
-            <small>
-              Compared with baseline
-            </small>
-          </div>
-
-        </div>
+        ))}
 
       </div>
 
 
       {/* =====================================================
-          MACHINE CONSUMPTION
+          MACHINE REPORT
           ===================================================== */}
 
       <div className="report-panel">
@@ -534,11 +949,15 @@ function Reports() {
         <div className="report-panel-header">
 
           <div>
-            <h2>Machine-wise Energy Consumption</h2>
+
+            <h2>
+              {reportContent.machineTitle}
+            </h2>
 
             <p>
-              Energy usage distribution across monitored machines
+              {reportContent.machineDescription}
             </p>
+
           </div>
 
           <div className="report-live-badge">
@@ -553,13 +972,31 @@ function Reports() {
           <table className="machine-table">
 
             <thead>
+
               <tr>
-                <th>Machine</th>
-                <th>Energy Consumption</th>
-                <th>Current Power</th>
-                <th>Usage Share</th>
-                <th>Status</th>
+
+                <th>
+                  Machine
+                </th>
+
+                <th>
+                  Energy Consumption
+                </th>
+
+                <th>
+                  Current Power
+                </th>
+
+                <th>
+                  Usage Share
+                </th>
+
+                <th>
+                  Status
+                </th>
+
               </tr>
+
             </thead>
 
             <tbody>
@@ -570,6 +1007,7 @@ function Reports() {
                   <tr key={index}>
 
                     <td>
+
                       <div className="machine-name">
 
                         <div className="machine-icon">
@@ -581,13 +1019,16 @@ function Reports() {
                         </span>
 
                       </div>
+
                     </td>
 
 
                     <td>
+
                       <strong>
                         {machine.energy} kWh
                       </strong>
+
                     </td>
 
 
@@ -645,7 +1086,7 @@ function Reports() {
 
 
       {/* =====================================================
-          DAILY ENERGY
+          DAILY REPORT
           ===================================================== */}
 
       <div className="report-panel">
@@ -653,11 +1094,15 @@ function Reports() {
         <div className="report-panel-header">
 
           <div>
-            <h2>Daily Energy Consumption</h2>
+
+            <h2>
+              {reportContent.dailyTitle}
+            </h2>
 
             <p>
-              Energy consumption and estimated cost by day
+              {reportContent.dailyDescription}
             </p>
+
           </div>
 
         </div>
@@ -713,7 +1158,9 @@ function Reports() {
 
           <div>
 
-            <span>Total Alerts</span>
+            <span>
+              Total Alerts
+            </span>
 
             <strong>
               {reportData.totalAlerts}
@@ -736,7 +1183,9 @@ function Reports() {
 
           <div>
 
-            <span>Energy Saving Potential</span>
+            <span>
+              Energy Saving Potential
+            </span>
 
             <strong>
               {reportData.energySaving}%
